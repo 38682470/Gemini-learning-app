@@ -1,278 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Learning App</title>
-    <style>
-        :root {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-card: #334155;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-gold: #d97706;
-            --accent-gold-hover: #b45309;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --border: #475569;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            color: var(--accent-gold);
-            margin-bottom: 5px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 700px;
-            background-color: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            border: 1px solid var(--border);
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            background-color: var(--accent-gold);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        button:hover {
-            background-color: var(--accent-gold-hover);
-        }
-
-        button.secondary {
-            background-color: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-main);
-        }
-
-        button.secondary:hover {
-            background-color: var(--bg-card);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .modal-content {
-            background-color: var(--bg-secondary);
-            padding: 24px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            border: 1px solid var(--border);
-        }
-
-        textarea {
-            width: 100%;
-            height: 200px;
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 12px;
-            box-sizing: border-box;
-            font-family: monospace;
-            resize: vertical;
-            margin-bottom: 15px;
-        }
-
-        .card-list {
-            margin-top: 20px;
-        }
-
-        .card-item {
-            background-color: var(--bg-card);
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .instructions {
-            font-size: 0.9em;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemini Learning App - Advanced Study Engine</title>
+<style>
+:root {
+--primary: #4A90E2;
+--bg: #f4f4f9;
+--card-bg: #ffffff;
+--text: #333333;
+--accent: #27ae60;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; background-color: var(--bg); color: var(--text); }
+.container { max-width: 900px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+h1, h2 { text-align: center; color: #2c3e50; }
+.nav-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+.tab-btn { padding: 10px 20px; border: none; background: #e0e0e0; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.tab-btn.active { background: var(--primary); color: white; }
+.section { display: none; }
+.section.active { display: block; }
+.leitner-tracker { display: flex; justify-content: space-between; margin-bottom: 20px; background: #eef2f5; padding: 15px; border-radius: 8px; }
+.box { text-align: center; flex: 1; }
+.box-num { font-weight: bold; font-size: 1.2em; color: var(--primary); }
+.card-display { border: 2px solid #e0e0e0; border-radius: 10px; padding: 25px; min-height: 200px; background: #fff; margin-bottom: 20px; }
+.feynman-input { width: 100%; height: 100px; margin-top: 15px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-family: inherit; box-sizing: border-box; }
+.model-answer { display: none; background: #e8f8f5; border-left: 4px solid var(--accent); padding: 15px; margin-top: 15px; border-radius: 4px; }
+.btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+.btn { padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.btn-primary { background: var(--primary); color: white; }
+.btn-success { background: var(--accent); color: white; }
+.btn-danger { background: #e74c3c; color: white; }
+textarea.bulk-area { width: 100%; height: 200px; font-family: monospace; padding: 10px; border-radius: 6px; box-sizing: border-box; }
+</style>
 </head>
 <body>
-
-    <header>
-        <h1>Gemini Learning App</h1>
-        <p style="color: var(--text-muted);">Feynman SRS Studio</p>
-    </header>
-
-    <div class="container">
-        <div class="controls">
-            <button onclick="openModal('addModal')">+ Add Card</button>
-            <button onclick="openModal('bulkModal')">Bulk Import</button>
-            <button class="secondary" onclick="clearAllCards()">Clear All</button>
-        </div>
-
-        <h3>Your Flashcards (<span id="cardCount">0</span>)</h3>
-        <div id="cardList" class="card-list">
-            <p class="instructions">No flashcards added yet. Use "Add Card" or "Bulk Import" to get started.</p>
-        </div>
-    </div>
-
-    <!-- Bulk Import Modal -->
-    <div id="bulkModal" class="modal">
-        <div class="modal-content">
-            <h2>Bulk Import Flashcards</h2>
-            <p class="instructions">Paste your flashcards below using the format:<br>
-            <code>Question | Answer</code> (one card per line)</p>
-            <textarea id="bulkInput" placeholder="What year was Jean Valjean released? | 1815
-What does the yellow passport symbolize? | Brands him as an ex-convict"></textarea>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button class="secondary" onclick="closeModal('bulkModal')">Cancel</button>
-                <button onclick="processBulkImport()">Import Cards</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Single Add Modal -->
-    <div id="addModal" class="modal">
-        <div class="modal-content">
-            <h2>Add Single Flashcard</h2>
-            <input type="text" id="singleQuestion" placeholder="Question / Prompt" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; background: var(--bg-primary); color: white; border: 1px solid var(--border); border-radius: 6px;">
-            <input type="text" id="singleAnswer" placeholder="Answer" style="width: 100%; padding: 10px; margin-bottom: 15px; box-sizing: border-box; background: var(--bg-primary); color: white; border: 1px solid var(--border); border-radius: 6px;">
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button class="secondary" onclick="closeModal('addModal')">Cancel</button>
-                <button onclick="addSingleCard()">Add</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let cards = JSON.parse(localStorage.getItem('gemini_flashcards')) || [];
-
-        function saveAndRender() {
-            localStorage.setItem('gemini_flashcards', JSON.stringify(cards));
-            const listEl = document.getElementById('cardList');
-            document.getElementById('cardCount').innerText = cards.length;
-
-            if (cards.length === 0) {
-                listEl.innerHTML = '<p class="instructions">No flashcards added yet. Use "Add Card" or "Bulk Import" to get started.</p>';
-                return;
-            }
-
-            listEl.innerHTML = cards.map((c, i) => `
-                <div class="card-item">
-                    <div>
-                        <strong>Q: ${escapeHtml(c.question)}</strong><br>
-                        <small style="color: var(--text-muted);">A: ${escapeHtml(c.answer)}</small>
-                    </div>
-                    <button class="secondary" style="color: var(--danger);" onclick="deleteCard(${i})">Delete</button>
-                </div>
-            `).join('');
-        }
-
-        function openModal(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-
-        function processBulkImport() {
-            const rawText = document.getElementById('bulkInput').value.trim();
-            if (!rawText) return;
-
-            const lines = rawText.split('\n');
-            let addedCount = 0;
-
-            lines.forEach(line => {
-                if (line.includes('|')) {
-                    const [q, a] = line.split('|');
-                    if (q.trim() && a.trim()) {
-                        cards.push({ question: q.trim(), answer: a.trim() });
-                        addedCount++;
-                    }
-                }
-            });
-
-            document.getElementById('bulkInput').value = '';
-            closeModal('bulkModal');
-            saveAndRender();
-        }
-
-        function addSingleCard() {
-            const q = document.getElementById('singleQuestion').value.trim();
-            const a = document.getElementById('singleAnswer').value.trim();
-
-            if (q && a) {
-                cards.push({ question: q, answer: a });
-                document.getElementById('singleQuestion').value = '';
-                document.getElementById('singleAnswer').value = '';
-                closeModal('addModal');
-                saveAndRender();
-            }
-        }
-
-        function deleteCard(index) {
-            cards.splice(index, 1);
-            saveAndRender();
-        }
-
-        function clearAllCards() {
-            if (confirm('Are you sure you want to delete all cards?')) {
-                cards = [];
-                saveAndRender();
-            }
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
-
-        // Initial load
-        saveAndRender();
-    </script>
+<div class="container">
+<h1>Gemini Learning App</h1>
+<div class="nav-tabs">
+<button class="tab-btn active" onclick="switchTab('study')">Study Mode</button>
+<button class="tab-btn" onclick="switchTab('manage')">Manage & Bulk Import</button>
+</div>
+<!-- STUDY SECTION -->
+<div id="study-section" class="section active">
+<div class="leitner-tracker">
+<div class="box"><div class="box-num" id="count-box1">0</div>Box 1</div>
+<div class="box"><div class="box-num" id="count-box2">0</div>Box 2</div>
+<div class="box"><div class="box-num" id="count-box3">0</div>Box 3</div>
+<div class="box"><div class="box-num" id="count-box4">0</div>Box 4</div>
+<div class="box"><div class="box-num" id="count-box5">0</div>Box 5</div>
+</div>
+<div id="card-container" class="card-display">
+<h3 id="card-question">No flashcards loaded. Go to "Manage & Bulk Import" to add cards.</h3>
+<div id="feynman-block" style="display:none;">
+<p><strong>Feynman Technique:</strong> Explain this concept in simple terms as if teaching someone else:</p>
+<textarea id="user-explanation" class="feynman-input" placeholder="Type your simple explanation here..."></textarea>
+<button class="btn btn-primary" style="margin-top:10px;" onclick="revealAnswer()">Compare with Model Answer</button>
+</div>
+<div id="model-answer-block" class="model-answer">
+<h4>Model Answer / Detailed Concept:</h4>
+<p id="card-answer-text"></p>
+</div>
+</div>
+<div id="assessment-btns" class="btn-group" style="display:none;">
+<button class="btn btn-danger" onclick="gradeCard(false)">Needs Review (Move to Box 1)</button>
+<button class="btn btn-success" onclick="gradeCard(true)">Mastered (Promote Box)</button>
+</div>
+</div>
+<!-- MANAGE & BULK IMPORT SECTION -->
+<div id="manage-section" class="section">
+<h2>Bulk Import Flashcards</h2>
+<p>Paste JSON array format cards below (contains Feynman conceptual prompts and Leitner tracking setup):</p>
+<textarea id="bulk-input" class="bulk-area" placeholder='[{"question": "What is 24601?", "answer": "Jean Valjean prisoner number at Toulon.", "box": 1}]'></textarea>
+<div class="btn-group">
+<button class="btn btn-primary" onclick="importCards()">Import Cards</button>
+<button class="btn btn-danger" onclick="clearCards()">Clear All Cards</button>
+</div>
+</div>
+</div>
+<script>
+let flashcards = JSON.parse(localStorage.getItem('gemini_flashcards')) || [
+{
+question: "What is Jean Valjean's original prisoner identification number at Toulon, and why is it symbolic?",
+answer: "Number 24601. It symbolizes the dehumanization of convicts under the French legal system, stripping Valjean of his name and identity until his redemption through Bishop Myriel.",
+box: 1
+},
+{
+question: "Explain the Feynman concept: How does Javert's view of justice differ from Bishop Myriel's view of mercy?",
+answer: "Javert views law as absolute and immutable; once a criminal, always a criminal. Bishop Myriel believes in divine mercy and spiritual redemption, demonstrating that grace can transform a human soul where punitive law fails.",
+box: 1
+}
+];
+let currentCardIndex = 0;
+function saveState() {
+localStorage.setItem('gemini_flashcards', JSON.stringify(flashcards));
+updateBoxCounts();
+}
+function updateBoxCounts() {
+for (let i = 1; i <= 5; i++) {
+let count = flashcards.filter(c => (c.box || 1) === i).length;
+document.getElementById(⁠count-box${i}⁠).innerText = count;
+}
+}
+function loadCard() {
+if (flashcards.length === 0) {
+document.getElementById('card-question').innerText = "No flashcards available.";
+document.getElementById('feynman-block').style.display = 'none';
+document.getElementById('assessment-btns').style.display = 'none';
+return;
+}
+let card = flashcards[currentCardIndex];
+document.getElementById('card-question').innerText = card.question;
+document.getElementById('user-explanation').value = '';
+document.getElementById('model-answer-block').style.display = 'none';
+document.getElementById('feynman-block').style.display = 'block';
+document.getElementById('assessment-btns').style.display = 'none';
+}
+function revealAnswer() {
+let card = flashcards[currentCardIndex];
+document.getElementById('card-answer-text').innerText = card.answer;
+document.getElementById('model-answer-block').style.display = 'block';
+document.getElementById('assessment-btns').style.display = 'flex';
+}
+function gradeCard(success) {
+let card = flashcards[currentCardIndex];
+if (!card.box) card.box = 1;
+if (success) {
+if (card.box < 5) card.box++;
+} else {
+card.box = 1;
+}
+saveState();
+currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+loadCard();
+}
+function switchTab(tab) {
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+if (tab === 'study') {
+document.querySelectorAll('.tab-btn')[0].classList.add('active');
+document.getElementById('study-section').classList.add('active');
+loadCard();
+} else {
+document.querySelectorAll('.tab-btn')[1].classList.add('active');
+document.getElementById('manage-section').classList.add('active');
+}
+}
+function importCards() {
+try {
+let input = document.getElementById('bulk-input').value;
+let parsed = JSON.parse(input);
+if (Array.isArray(parsed)) {
+flashcards = flashcards.concat(parsed);
+saveState();
+alert(⁠Successfully imported ${parsed.length} new cards!⁠);
+switchTab('study');
+} else {
+alert("Import failed: Input must be a valid JSON array.");
+}
+} catch (e) {
+alert("Invalid JSON format. Please check your data structure.");
+}
+}
+function clearCards() {
+if (confirm("Are you sure you want to clear all saved flashcards?")) {
+flashcards = [];
+saveState();
+loadCard();
+}
+}
+updateBoxCounts();
+loadCard();
+</script>
 </body>
 </html>
