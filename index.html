@@ -2,12 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- iPad PWA Meta Tags -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Learning SRS">
-    <title>Gemini Learning App • Feynman SRS Studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Learning App</title>
     <style>
         :root {
             --bg-primary: #0f172a;
@@ -23,407 +19,260 @@
             --border: #475569;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg-primary); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; padding: 16px; -webkit-user-select: none; user-select: none; }
-        
-        header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-        header h1 { color: #f59e0b; font-size: 1.8rem; margin-bottom: 4px; }
-        header p { color: var(--text-muted); font-size: 0.85rem; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
 
-        .stats-bar { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-        .box-stat { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 70px; flex: 1; }
-        .box-stat .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
-        .box-stat .count { font-size: 1.2rem; font-weight: bold; color: var(--accent-gold); margin-top: 2px; }
-        .box-stat.flagged .count { color: var(--danger); }
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-        .controls { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 16px; background: var(--bg-secondary); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); }
-        select, button, input, textarea { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); padding: 10px 12px; border-radius: 8px; font-size: 0.95rem; outline: none; -webkit-user-select: text; user-select: text; }
-        button { cursor: pointer; background: var(--accent-gold); color: #fff; font-weight: 600; border: none; transition: opacity 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        button:active { opacity: 0.8; }
-        button.secondary { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); }
-        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        h1 {
+            color: var(--accent-gold);
+            margin-bottom: 5px;
+        }
 
-        .card-container { max-width: 720px; width: 100%; margin: 0 auto 20px auto; }
-        .srs-card { background: var(--bg-secondary); border: 2px solid var(--border); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
-        
-        .card-header { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .card-prompt { font-size: 1.2rem; line-height: 1.5; font-weight: 600; color: #f8fafc; }
-        
-        /* Feynman Teach Canvas */
-        .feynman-box { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-        .feynman-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); }
-        .feynman-textarea { width: 100%; height: 90px; resize: none; background: var(--bg-primary); border: 1px solid var(--border); border-radius: 6px; padding: 10px; color: #f8fafc; font-size: 0.95rem; }
-        
-        .jargon-badge { display: none; font-size: 0.78rem; padding: 6px 10px; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: #fca5a5; border-radius: 6px; }
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
+        }
 
-        /* Revealed Answer Styling */
-        .model-answer { background: rgba(16, 185, 129, 0.08); border-left: 4px solid var(--success); padding: 12px; border-radius: 0 8px 8px 0; font-size: 1rem; line-height: 1.5; }
-        .interrogation-box { background: rgba(217, 119, 6, 0.1); border-left: 4px solid var(--accent-gold); padding: 12px; border-radius: 0 8px 8px 0; font-size: 0.9rem; color: #fef3c7; }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
 
-        /* Gap Analysis Buttons */
-        .gap-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
-        .btn-gap { padding: 12px 8px; font-size: 0.82rem; border-radius: 8px; text-align: center; flex-direction: column; gap: 2px; }
-        .btn-gap span.sub { font-size: 0.7rem; font-weight: normal; opacity: 0.85; }
+        button {
+            background-color: var(--accent-gold);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
 
-        .btn-clear { background: #059669; }
-        .btn-complicated { background: #d97706; }
-        .btn-jargon { background: #dc2626; }
-        .btn-gap-flag { background: #7f1d1d; border: 1px solid var(--danger); }
+        button:hover {
+            background-color: var(--accent-gold-hover);
+        }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 100; }
-        .modal-content { background: var(--bg-secondary); padding: 20px; border-radius: 12px; width: 90%; max-width: 500px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+        button.secondary {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        button.secondary:hover {
+            background-color: var(--bg-card);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            border: 1px solid var(--border);
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            box-sizing: border-box;
+            font-family: monospace;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .card-list {
+            margin-top: 20px;
+        }
+
+        .card-item {
+            background-color: var(--bg-card);
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .instructions {
+            font-size: 0.9em;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>Gemini Learning App</h1>
-        <p>Multi-Book Reader • Feynman Learning &amp; Spaced Repetition Engine</p>
+        <p style="color: var(--text-muted);">Feynman SRS Studio</p>
     </header>
 
-    <div class="stats-bar">
-        <div class="box-stat"><div class="label">Box 1</div><div class="count" id="count-1">0</div></div>
-        <div class="box-stat"><div class="label">Box 2</div><div class="count" id="count-2">0</div></div>
-        <div class="box-stat"><div class="label">Box 3</div><div class="count" id="count-3">0</div></div>
-        <div class="box-stat"><div class="label">Box 4</div><div class="count" id="count-4">0</div></div>
-        <div class="box-stat"><div class="label">Box 5</div><div class="count" id="count-5">0</div></div>
-        <div class="box-stat flagged"><div class="label">Re-Study</div><div class="count" id="count-flagged">0</div></div>
-    </div>
+    <div class="container">
+        <div class="controls">
+            <button onclick="openModal('addModal')">+ Add Card</button>
+            <button onclick="openModal('bulkModal')">Bulk Import</button>
+            <button class="secondary" onclick="clearAllCards()">Clear All</button>
+        </div>
 
-    <div class="controls">
-        <select id="filterCategory" onchange="renderApp()">
-            <option value="ALL">All Books / Categories</option>
-            <option value="FLAGGED">⚠️ Re-Study Deck</option>
-        </select>
-        <div style="display: flex; gap: 6px;">
-            <button class="secondary" onclick="openAddModal()">+ Add</button>
-            <button class="secondary" onclick="exportJSON()">Export</button>
-            <button class="secondary" onclick="resetToDefaults()">Reset</button>
+        <h3>Your Flashcards (<span id="cardCount">0</span>)</h3>
+        <div id="cardList" class="card-list">
+            <p class="instructions">No flashcards added yet. Use "Add Card" or "Bulk Import" to get started.</p>
         </div>
     </div>
 
-    <div class="card-container">
-        <div id="activeCardDisplay" class="srs-card">
-            <!-- Dynamic Content -->
+    <!-- Bulk Import Modal -->
+    <div id="bulkModal" class="modal">
+        <div class="modal-content">
+            <h2>Bulk Import Flashcards</h2>
+            <p class="instructions">Paste your flashcards below using the format:<br>
+            <code>Question | Answer</code> (one card per line)</p>
+            <textarea id="bulkInput" placeholder="What year was Jean Valjean released? | 1815
+What does the yellow passport symbolize? | Brands him as an ex-convict"></textarea>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="secondary" onclick="closeModal('bulkModal')">Cancel</button>
+                <button onclick="processBulkImport()">Import Cards</button>
+            </div>
         </div>
     </div>
 
-    <!-- Modal Form -->
+    <!-- Single Add Modal -->
     <div id="addModal" class="modal">
         <div class="modal-content">
-            <h3 style="color: var(--accent-gold);">Add Flashcard</h3>
-            <input type="text" id="newCat" placeholder="Book Title or Category (e.g., Les Misérables, Roots)">
-            <textarea id="newPrompt" rows="3" placeholder="Prompt / Concept Question"></textarea>
-            <textarea id="newAnswer" rows="2" placeholder="Model Answer"></textarea>
-            <textarea id="newInterrogation" rows="2" placeholder="Elaborative Interrogation (Why does this happen?)"></textarea>
-            <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                <button class="secondary" onclick="closeAddModal()">Cancel</button>
-                <button onclick="saveNewCard()">Save Card</button>
+            <h2>Add Single Flashcard</h2>
+            <input type="text" id="singleQuestion" placeholder="Question / Prompt" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; background: var(--bg-primary); color: white; border: 1px solid var(--border); border-radius: 6px;">
+            <input type="text" id="singleAnswer" placeholder="Answer" style="width: 100%; padding: 10px; margin-bottom: 15px; box-sizing: border-box; background: var(--bg-primary); color: white; border: 1px solid var(--border); border-radius: 6px;">
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="secondary" onclick="closeModal('addModal')">Cancel</button>
+                <button onclick="addSingleCard()">Add</button>
             </div>
         </div>
     </div>
 
     <script>
-        const DEFAULT_CARDS = [
-            {
-                id: "lm-001",
-                box: 1,
-                flagged: false,
-                category: "Les Misérables",
-                prompt: "What is Jean Valjean's original prisoner identification number at Toulon, and why is it symbolic?",
-                answer: "24601 (later 9430). Symbolizes his complete reduction to an anonymous state object prior to his redemption.",
-                interrogation: "How does Bishop Myriel's gift of silver break Valjean's institutional identity cycle?"
-            },
-            {
-                id: "lm-002",
-                box: 1,
-                flagged: false,
-                category: "Les Misérables",
-                prompt: "Which historical funeral triggers the Paris Uprising of June 1832 in the novel?",
-                answer: "The funeral of General Jean Maximilien Lamarque, a popular advocate for the working class.",
-                interrogation: "Why was Lamarque's death the operational catalyst for Les Amis de l'ABC?"
-            },
-            {
-                id: "mc-001",
-                box: 1,
-                flagged: false,
-                category: "The Count of Monte Cristo",
-                prompt: "What three core identities does Edmond Dantès assume to execute his revenge in Paris?",
-                answer: "The Count of Monte Cristo, Lord Wilmore, and Sinbad the Sailor (also Abbé Busoni).",
-                interrogation: "How do these distinct personas allow Dantès to manipulate both financial markets and moral debts?"
-            },
-            {
-                id: "ov-001",
-                box: 1,
-                flagged: false,
-                category: "A Man Called Ove",
-                prompt: "What core underlying value drives Ove's rigid adherence to neighbourhood rules and routines?",
-                answer: "A deep commitment to principle, loyalty, and order left behind by his late wife, Sonja.",
-                interrogation: "How does Parvaneh's arrival challenge Ove's defensive isolation without destroying his integrity?"
-            }
-        ];
+        let cards = JSON.parse(localStorage.getItem('gemini_flashcards')) || [];
 
-        // Complex words array for Jargon Bouncer
-        const JARGON_LIST = ["seditious", "absolutism", "sycophantic", "divine", "unyielding", "dogma", "opportunistic", "socioeconomic", "paradox", "reconciliation", "institutional", "irreconcilable"];
+        function saveAndRender() {
+            localStorage.setItem('gemini_flashcards', JSON.stringify(cards));
+            const listEl = document.getElementById('cardList');
+            document.getElementById('cardCount').innerText = cards.length;
 
-        let cards = [];
-        let currentCardIndex = 0;
-        let isAnswerVisible = false;
-        let speechRecognition = null;
-
-        function initData() {
-            const stored = localStorage.getItem('gemini_learning_app_cards');
-            if (!stored) {
-                cards = JSON.parse(JSON.stringify(DEFAULT_CARDS));
-                saveData();
-            } else {
-                cards = JSON.parse(stored);
-            }
-            populateCategoryFilter();
-            renderApp();
-        }
-
-        function saveData() {
-            localStorage.setItem('gemini_learning_app_cards', JSON.stringify(cards));
-        }
-
-        function resetToDefaults() {
-            if (confirm("Reset to default sample dataset?")) {
-                cards = JSON.parse(JSON.stringify(DEFAULT_CARDS));
-                saveData();
-                populateCategoryFilter();
-                renderApp();
-            }
-        }
-
-        function populateCategoryFilter() {
-            const select = document.getElementById('filterCategory');
-            const categories = [...new Set(cards.map(c => c.category))];
-            select.innerHTML = '<option value="ALL">All Books / Categories</option><option value="FLAGGED">⚠️ Re-Study Deck</option>';
-            categories.forEach(cat => {
-                const opt = document.createElement('option');
-                opt.value = cat;
-                opt.textContent = cat;
-                select.appendChild(opt);
-            });
-        }
-
-        function getFilteredCards() {
-            const cat = document.getElementById('filterCategory').value;
-            if (cat === 'ALL') return cards;
-            if (cat === 'FLAGGED') return cards.filter(c => c.flagged);
-            return cards.filter(c => c.category === cat);
-        }
-
-        function updateStats() {
-            for (let i = 1; i <= 5; i++) {
-                document.getElementById(`count-${i}`).textContent = cards.filter(c => c.box === i).length;
-            }
-            document.getElementById('count-flagged').textContent = cards.filter(c => c.flagged).length;
-        }
-
-        function checkJargon(text) {
-            const badge = document.getElementById('jargonBadge');
-            if (!badge) return;
-            const lowerText = text.toLowerCase();
-            const foundJargon = JARGON_LIST.filter(word => lowerText.includes(word));
-            
-            if (foundJargon.length > 0) {
-                badge.style.display = 'block';
-                badge.innerHTML = `⚠️ <strong>Jargon Alert:</strong> You used complex terms (<em>${foundJargon.join(', ')}</em>). Try rephrasing into simple, everyday language!`;
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-
-        function toggleVoice() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                alert("Speech recognition is unavailable or restricted in this browser context.");
+            if (cards.length === 0) {
+                listEl.innerHTML = '<p class="instructions">No flashcards added yet. Use "Add Card" or "Bulk Import" to get started.</p>';
                 return;
             }
 
-            if (speechRecognition) {
-                speechRecognition.stop();
-                speechRecognition = null;
-                document.getElementById('micBtn').style.background = 'var(--bg-card)';
-                return;
-            }
-
-            speechRecognition = new SpeechRecognition();
-            speechRecognition.continuous = true;
-            speechRecognition.interimResults = true;
-            speechRecognition.lang = 'en-US';
-
-            document.getElementById('micBtn').style.background = 'var(--danger)';
-
-            speechRecognition.onresult = (event) => {
-                let transcript = '';
-                for (let i = 0; i < event.results.length; i++) {
-                    transcript += event.results[i][0].transcript;
-                }
-                const area = document.getElementById('feynmanInput');
-                area.value = transcript;
-                checkJargon(transcript);
-                unlockCompareBtn();
-            };
-
-            speechRecognition.onerror = () => {
-                document.getElementById('micBtn').style.background = 'var(--bg-card)';
-                speechRecognition = null;
-            };
-
-            speechRecognition.start();
-        }
-
-        function unlockCompareBtn() {
-            const val = document.getElementById('feynmanInput').value.trim();
-            const btn = document.getElementById('compareBtn');
-            if (btn) btn.disabled = val.length === 0;
-        }
-
-        function renderApp() {
-            updateStats();
-            const display = document.getElementById('activeCardDisplay');
-            const activeDeck = getFilteredCards();
-
-            if (activeDeck.length === 0) {
-                display.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted);"><h3>No Cards Found</h3><p>Selected deck/filter is empty.</p></div>`;
-                return;
-            }
-
-            if (currentCardIndex >= activeDeck.length) currentCardIndex = 0;
-            const card = activeDeck[currentCardIndex];
-
-            let html = `
-                <div class="card-header">
-                    <span>${escapeHtml(card.category)} ${card.flagged ? '⚠️ Flagged' : ''}</span>
-                    <span>Leitner Box ${card.box}</span>
+            listEl.innerHTML = cards.map((c, i) => `
+                <div class="card-item">
+                    <div>
+                        <strong>Q: ${escapeHtml(c.question)}</strong><br>
+                        <small style="color: var(--text-muted);">A: ${escapeHtml(c.answer)}</small>
+                    </div>
+                    <button class="secondary" style="color: var(--danger);" onclick="deleteCard(${i})">Delete</button>
                 </div>
-                <div class="card-prompt">${escapeHtml(card.prompt)}</div>
-            `;
+            `).join('');
+        }
 
-            if (!isAnswerVisible) {
-                html += `
-                    <div class="feynman-box">
-                        <div class="feynman-header">
-                            <span>Step 1: Teach / Explain Plainly</span>
-                            <button id="micBtn" class="secondary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="toggleVoice()">🎙️ Voice-Teach</button>
-                        </div>
-                        <textarea id="feynmanInput" class="feynman-textarea" placeholder="Explain this concept in simple words as if teaching someone else..." oninput="checkJargon(this.value); unlockCompareBtn();"></textarea>
-                        <div id="jargonBadge" class="jargon-badge"></div>
-                    </div>
-                    <button id="compareBtn" disabled onclick="revealAnswer()" style="padding: 12px; margin-top: 6px;">Compare with Model Answer</button>
-                `;
-            } else {
-                html += `
-                    <div class="model-answer">
-                        <strong style="color: var(--success); font-size: 0.85rem; text-transform: uppercase;">Model Explanation:</strong><br>
-                        ${escapeHtml(card.answer)}
-                    </div>
-                    ${card.interrogation ? `
-                        <div class="interrogation-box">
-                            <strong>Elaborative Interrogation:</strong><br>
-                            ${escapeHtml(card.interrogation)}
-                        </div>
-                    ` : ''}
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
 
-                    <div style="margin-top: 8px;">
-                        <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Step 2: Feynman Gap Self-Audit</span>
-                        <div class="gap-matrix">
-                            <button class="btn-gap btn-clear" onclick="processFeynman('clear')">
-                                🟢 Clear &amp; Simple
-                                <span class="sub">Box +1</span>
-                            </button>
-                            <button class="btn-gap btn-complicated" onclick="processFeynman('complicated')">
-                                🟡 Over-Complicated
-                                <span class="sub">Box Stays Same</span>
-                            </button>
-                            <button class="btn-gap btn-jargon" onclick="processFeynman('jargon')">
-                                🟠 Relied on Jargon
-                                <span class="sub">Reset Box 1</span>
-                            </button>
-                            <button class="btn-gap btn-gap-flag" onclick="processFeynman('gap')">
-                                🔴 Conceptual Gap
-                                <span class="sub">Reset Box 1 + Flag</span>
-                            </button>
-                        </div>
-                    </div>
-                `;
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function processBulkImport() {
+            const rawText = document.getElementById('bulkInput').value.trim();
+            if (!rawText) return;
+
+            const lines = rawText.split('\n');
+            let addedCount = 0;
+
+            lines.forEach(line => {
+                if (line.includes('|')) {
+                    const [q, a] = line.split('|');
+                    if (q.trim() && a.trim()) {
+                        cards.push({ question: q.trim(), answer: a.trim() });
+                        addedCount++;
+                    }
+                }
+            });
+
+            document.getElementById('bulkInput').value = '';
+            closeModal('bulkModal');
+            saveAndRender();
+        }
+
+        function addSingleCard() {
+            const q = document.getElementById('singleQuestion').value.trim();
+            const a = document.getElementById('singleAnswer').value.trim();
+
+            if (q && a) {
+                cards.push({ question: q, answer: a });
+                document.getElementById('singleQuestion').value = '';
+                document.getElementById('singleAnswer').value = '';
+                closeModal('addModal');
+                saveAndRender();
             }
-
-            display.innerHTML = html;
         }
 
-        function revealAnswer() {
-            if (speechRecognition) {
-                speechRecognition.stop();
-                speechRecognition = null;
+        function deleteCard(index) {
+            cards.splice(index, 1);
+            saveAndRender();
+        }
+
+        function clearAllCards() {
+            if (confirm('Are you sure you want to delete all cards?')) {
+                cards = [];
+                saveAndRender();
             }
-            isAnswerVisible = true;
-            renderApp();
-        }
-
-        function processFeynman(action) {
-            const activeDeck = getFilteredCards();
-            const card = activeDeck[currentCardIndex];
-
-            switch(action) {
-                case 'clear':
-                    if (card.box < 5) card.box += 1;
-                    card.flagged = false;
-                    break;
-                case 'complicated':
-                    // Box stays same
-                    break;
-                case 'jargon':
-                    card.box = 1;
-                    break;
-                case 'gap':
-                    card.box = 1;
-                    card.flagged = true;
-                    break;
-            }
-
-            saveData();
-            isAnswerVisible = false;
-            currentCardIndex = (currentCardIndex + 1) % activeDeck.length;
-            renderApp();
-        }
-
-        function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
-        function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
-
-        function saveNewCard() {
-            const cat = document.getElementById('newCat').value.trim() || "General";
-            const prompt = document.getElementById('newPrompt').value.trim();
-            const answer = document.getElementById('newAnswer').value.trim();
-            const interrogation = document.getElementById('newInterrogation').value.trim();
-
-            if (!prompt || !answer) return alert("Please fill in prompt and answer.");
-
-            cards.push({ id: "custom-" + Date.now(), box: 1, flagged: false, category: cat, prompt, answer, interrogation });
-            saveData();
-            populateCategoryFilter();
-            closeAddModal();
-            renderApp();
-        }
-
-        function exportJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards, null, 2));
-            const dlAnchor = document.createElement('a');
-            dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", "gemini_learning_app_backup.json");
-            document.body.appendChild(dlAnchor);
-            dlAnchor.click();
-            dlAnchor.remove();
         }
 
         function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
-        window.onload = initData;
+        // Initial load
+        saveAndRender();
     </script>
 </body>
 </html>
