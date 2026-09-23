@@ -1,564 +1,1452 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gemini Learning App v2.0</title>
-  <style>
-    :root {
-      --bg-main: #0f172a;
-      --bg-card: #1e293b;
-      --bg-inner: #0f172a;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --border-color: #334155;
-      --accent-color: #f59e0b; /* Default accent color */
-      --accent-glow: rgba(245, 158, 11, 0.2);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ebbinghaus Literature Studio | Active Recall & Spaced Repetition</title>
+    
+    <!-- iOS / PWA Web App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LitSpaced">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3389/3389081.png">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151f32',
+                            900: '#0f172a',
+                            950: '#080d1a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        serif: ['Georgia', 'Cambria', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Inter & Lora -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        /* Allow text selection in answers/prompts */
+        .selectable-text {
+            user-select: text;
+        }
 
-    body {
-      background-color: var(--bg-main);
-      color: var(--text-main);
-      padding: 24px;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
 
-    header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
+        /* Soft Pastel Glass Effects */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
 
-    header h1 {
-      color: var(--accent-color);
-      font-size: 2rem;
-      margin-bottom: 6px;
-      transition: color 0.3s ease;
-    }
+        .pastel-badge {
+            color: #0f172a;
+            font-weight: 600;
+        }
 
-    header p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
+        /* Flip Animation Support */
+        .card-perspective {
+            perspective: 1000px;
+        }
+        
+        .card-inner {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
 
-    /* Bookshelf Section */
-    .bookshelf-wrapper {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 24px;
-    }
+        /* Touch friendly buttons */
+        .touch-btn {
+            min-height: 44px;
+            touch-action: manipulation;
+        }
 
-    .bookshelf-title {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      font-weight: 700;
-    }
-
-    .bookshelf-grid {
-      display: flex;
-      gap: 16px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-    }
-
-    .book-cover-card {
-      flex: 0 0 110px;
-      height: 160px;
-      border-radius: 8px;
-      border: 2px solid transparent;
-      background: var(--bg-inner);
-      cursor: pointer;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 8px;
-      transition: all 0.2s ease;
-      position: relative;
-    }
-
-    .book-cover-card:hover {
-      transform: translateY(-4px);
-    }
-
-    .book-cover-card.active {
-      border-color: var(--accent-color);
-      box-shadow: 0 0 12px var(--accent-glow);
-    }
-
-    .book-cover-card img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 4px;
-    }
-
-    .book-cover-fallback {
-      font-size: 0.75rem;
-      font-weight: bold;
-      color: var(--text-main);
-    }
-
-    /* Leitner Boxes Bar */
-    .leitner-bar {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .box-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-    }
-
-    .box-card .box-label { font-size: 0.7rem; color: var(--text-muted); font-weight: bold; }
-    .box-card .box-count { font-size: 1.4rem; font-weight: bold; color: var(--accent-color); }
-
-    /* Control Bar */
-    .controls-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 20px;
-    }
-
-    select, button {
-      background: var(--bg-card);
-      color: var(--text-main);
-      border: 1px solid var(--border-color);
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-
-    button.btn-primary { background: var(--accent-color); color: #000; font-weight: bold; border: none; }
-    button.btn-success { background: #10b981; color: #fff; border: none; }
-    button.btn-danger { background: #ef4444; color: #fff; border: none; }
-
-    /* Study Technique Tabs */
-    .technique-tabs {
-      display: flex;
-      gap: 4px;
-      background: var(--bg-card);
-      padding: 4px;
-      border-radius: 8px 8px 0 0;
-      border: 1px solid var(--border-color);
-      border-bottom: none;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 10px;
-      text-align: center;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-weight: 600;
-      border-radius: 6px;
-      transition: all 0.2s ease;
-    }
-
-    .tab-btn.active {
-      background: var(--accent-color);
-      color: #000;
-    }
-
-    /* Main Card Display */
-    .card-container {
-      background: var(--bg-card);
-      border: 2px solid var(--accent-color);
-      border-radius: 0 0 12px 12px;
-      padding: 24px;
-      min-height: 320px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 0 4px 20px var(--accent-glow);
-      transition: border-color 0.3s ease;
-    }
-
-    .card-meta {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: bold;
-      letter-spacing: 0.5px;
-      margin-bottom: 16px;
-    }
-
-    .card-prompt {
-      font-size: 1.2rem;
-      font-weight: 600;
-      line-height: 1.5;
-      margin-bottom: 20px;
-    }
-
-    /* Study Mode Content Panels */
-    .mode-panel { margin-bottom: 20px; }
-
-    textarea {
-      width: 100%;
-      height: 110px;
-      background: var(--bg-inner);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      color: var(--text-main);
-      padding: 12px;
-      font-size: 0.95rem;
-      resize: vertical;
-      margin-bottom: 12px;
-    }
-
-    .model-answer-box {
-      background: var(--bg-inner);
-      border-left: 4px solid var(--accent-color);
-      padding: 14px;
-      border-radius: 4px;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      margin-top: 12px;
-    }
-
-    .cloze-blank {
-      background: var(--accent-color);
-      color: #000;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: bold;
-    }
-
-    /* Action Buttons */
-    .card-actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .card-actions button { flex: 1; padding: 12px; }
-
-    .hidden { display: none !important; }
-  </style>
+        .gradient-border-top {
+            border-top: 3px solid;
+            border-image-slice: 1;
+        }
+    </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col bg-slate-900 text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
 
-  <header>
-    <h1 id="app-title">Gemini Learning App</h1>
-    <p>Multi-Book Reader • Spaced Repetition & Multi-Technique Engine</p>
-  </header>
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-30 glass-panel border-b border-slate-800/80 px-4 py-3 sm:px-6">
+        <div class="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+            
+            <!-- Brand & Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="filterByBook('ALL')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                    <i class="fa-solid font-bold fa-book-open text-lg"></i>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="text-base font-bold tracking-tight text-white leading-none">Ebbinghaus Studio</h1>
+                    <p class="text-xs text-slate-400 mt-0.5 font-medium">Literature Active Recall Engine</p>
+                </div>
+            </div>
 
-  <!-- Bookshelf Section -->
-  <div class="bookshelf-wrapper">
-    <div class="bookshelf-title">Your Bookshelf</div>
-    <div class="bookshelf-grid" id="bookshelf">
-      <!-- Book covers dynamically injected here -->
+            <!-- Global Stats Widget (Reviewed Today & Streak) -->
+            <div class="flex items-center space-x-2 sm:space-x-4 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/60">
+                <div class="flex items-center space-x-1.5 text-xs sm:text-sm font-semibold text-amber-400" title="Active Day Streak">
+                    <i class="fa-solid fa-fire text-amber-500 animate-pulse"></i>
+                    <span id="streak-count-display">0</span>
+                    <span class="text-slate-400 text-xs hidden sm:inline">Days</span>
+                </div>
+                <div class="h-3.5 w-px bg-slate-700"></div>
+                <div class="flex items-center space-x-1.5 text-xs sm:text-sm font-semibold text-emerald-400" title="Cards Reviewed Today">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                    <span id="today-count-display">0</span>
+                    <span class="text-slate-400 text-xs hidden sm:inline">Today</span>
+                </div>
+            </div>
+
+            <!-- Top Header Action Buttons -->
+            <div class="flex items-center space-x-1.5 sm:space-x-2">
+                <button onclick="openSearchModal()" class="touch-btn px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs sm:text-sm font-medium transition flex items-center space-x-1.5 border border-slate-700" title="Search Cards (Cmd+K)">
+                    <i class="fa-solid fa-magnifying-glass text-indigo-400"></i>
+                    <span class="hidden md:inline">Search</span>
+                </button>
+                <button onclick="openVacationModal()" class="touch-btn px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs sm:text-sm font-medium transition flex items-center space-x-1.5 border border-slate-700" title="Vacation / Holiday Freeze">
+                    <i class="fa-solid fa-umbrella-beach text-sky-400"></i>
+                    <span class="hidden md:inline">Vacation Mode</span>
+                </button>
+                <button onclick="openCreateModal()" class="touch-btn px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs sm:text-sm font-semibold shadow-md shadow-indigo-600/30 transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="hidden sm:inline">New Card</span>
+                </button>
+                <button onclick="openDataModal()" class="touch-btn px-2.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs sm:text-sm transition border border-slate-700" title="Data Backup & Import/Export">
+                    <i class="fa-solid fa-database"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- SECTION 1: INTERACTIVE BOOKSHELF DASHBOARD -->
+        <section class="space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <h2 class="text-lg sm:text-xl font-bold tracking-tight text-slate-100">Interactive Bookshelf</h2>
+                    <span id="active-filter-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">All Literature</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="filterByBook('ALL')" id="filter-all-btn" class="px-3 py-1 rounded-lg text-xs font-semibold bg-indigo-600 text-white shadow transition">All Decks</button>
+                </div>
+            </div>
+
+            <!-- Dynamic Bookshelf Container -->
+            <div id="bookshelf-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- Books Rendered Dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- SECTION 2: QUEUE & SM-2 STATS SUMMARY -->
+        <section class="glass-panel p-4 rounded-2xl border border-slate-800 shadow-xl space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-layer-group text-indigo-400"></i>
+                    <span class="text-xs sm:text-sm font-semibold uppercase tracking-wider text-slate-400">SM-2 Review Queue Distribution</span>
+                </div>
+                <div class="flex items-center space-x-2 text-xs font-medium text-slate-400">
+                    <span>Due Now: <strong id="queue-due-total" class="text-amber-400 font-bold">0</strong></span>
+                    <span>•</span>
+                    <span>Total Cards: <strong id="queue-cards-total" class="text-slate-200 font-bold">0</strong></span>
+                </div>
+            </div>
+
+            <!-- Box 1 to 5 Counter Distribution -->
+            <div class="grid grid-cols-5 gap-2 text-center text-xs">
+                <div class="p-2 rounded-xl bg-slate-800/80 border border-red-500/20">
+                    <div class="text-slate-400 text-[10px] sm:text-xs font-medium uppercase">Box 1</div>
+                    <div id="box-1-count" class="text-base sm:text-lg font-extrabold text-red-400">0</div>
+                    <div class="text-[10px] text-slate-500">Learning</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-800/80 border border-orange-500/20">
+                    <div class="text-slate-400 text-[10px] sm:text-xs font-medium uppercase">Box 2</div>
+                    <div id="box-2-count" class="text-base sm:text-lg font-extrabold text-orange-400">0</div>
+                    <div class="text-[10px] text-slate-500">Review</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-800/80 border border-yellow-500/20">
+                    <div class="text-slate-400 text-[10px] sm:text-xs font-medium uppercase">Box 3</div>
+                    <div id="box-3-count" class="text-base sm:text-lg font-extrabold text-yellow-400">0</div>
+                    <div class="text-[10px] text-slate-500">Consolidating</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-800/80 border border-emerald-500/20">
+                    <div class="text-slate-400 text-[10px] sm:text-xs font-medium uppercase">Box 4</div>
+                    <div id="box-4-count" class="text-base sm:text-lg font-extrabold text-emerald-400">0</div>
+                    <div class="text-[10px] text-slate-500">Retained</div>
+                </div>
+                <div class="p-2 rounded-xl bg-slate-800/80 border border-sky-500/20">
+                    <div class="text-slate-400 text-[10px] sm:text-xs font-medium uppercase">Box 5</div>
+                    <div id="box-5-count" class="text-base sm:text-lg font-extrabold text-sky-400">0</div>
+                    <div class="text-[10px] text-slate-500">Mastered</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: THREE STUDY TECHNIQUE TABS & FLASHCARD INTERACTION -->
+        <section class="max-w-3xl mx-auto space-y-4">
+            
+            <!-- Study Mode Technique Selector Tabs -->
+            <div class="flex bg-slate-800/90 p-1.5 rounded-xl border border-slate-700/80 text-xs sm:text-sm font-semibold shadow-inner">
+                <button id="tab-active-recall" onclick="switchTechniqueTab('active-recall')" class="flex-1 py-2 rounded-lg transition-all flex items-center justify-center space-x-2 bg-indigo-600 text-white shadow">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>1. Active Recall</span>
+                </button>
+                <button id="tab-feynman" onclick="switchTechniqueTab('feynman')" class="flex-1 py-2 rounded-lg transition-all flex items-center justify-center space-x-2 text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>2. Feynman Method</span>
+                </button>
+                <button id="tab-cloze" onclick="switchTechniqueTab('cloze')" class="flex-1 py-2 rounded-lg transition-all flex items-center justify-center space-x-2 text-slate-400 hover:text-slate-200">
+                    <i class="fa-solid fa-mask"></i>
+                    <span>3. Cloze Deletion</span>
+                </button>
+            </div>
+
+            <!-- Active Card Display Box -->
+            <div id="study-card-container" class="relative rounded-2xl glass-panel border border-slate-700/80 shadow-2xl overflow-hidden transition-all duration-300">
+                <!-- Content Injected Dynamically by JS -->
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: GLOBAL SEARCH & FILTER MODAL -->
+    <div id="modal-search" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            
+            <!-- Search Header -->
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between gap-3">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search-input" onkeyup="renderSearchResults()" placeholder="Search book, character, plot, tag, or prompt..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-indigo-500">
+                </div>
+                <button onclick="closeModal('modal-search')" class="p-2 text-slate-400 hover:text-white rounded-lg text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Filter Tag Pills -->
+            <div id="search-tags-container" class="px-4 py-2 border-b border-slate-800/80 flex flex-wrap gap-1.5 text-xs">
+                <!-- Tags rendered dynamically -->
+            </div>
+
+            <!-- Search Results List -->
+            <div id="search-results-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+                <!-- Search Result Cards rendered dynamically -->
+            </div>
+            
+            <div class="p-3 bg-slate-950 border-t border-slate-800 text-xs text-slate-400 flex justify-between items-center">
+                <span>Tip: Click any card to load or edit directly.</span>
+                <span id="search-count-badge" class="font-semibold text-slate-300">0 items</span>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Leitner Box Progress -->
-  <div class="leitner-bar">
-    <div class="box-card"><div class="box-label">BOX 1</div><div class="box-count" id="b1-count">0</div></div>
-    <div class="box-card"><div class="box-label">BOX 2</div><div class="box-count" id="b2-count">0</div></div>
-    <div class="box-card"><div class="box-label">BOX 3</div><div class="box-count" id="b3-count">0</div></div>
-    <div class="box-card"><div class="box-label">BOX 4</div><div class="box-count" id="b4-count">0</div></div>
-    <div class="box-card"><div class="box-label">BOX 5</div><div class="box-count" id="b5-count">0</div></div>
-    <div class="box-card"><div class="box-label">RE-STUDY</div><div class="box-count" id="br-count">0</div></div>
-  </div>
+    <!-- MODAL 2: VACATION / HOLIDAY FREEZE MODAL -->
+    <div id="modal-vacation" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-umbrella-beach"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-white">Holiday / Vacation Freeze Mode</h3>
+                    <p class="text-xs text-slate-400">Shift all scheduled card due dates forward.</p>
+                </div>
+            </div>
 
-  <!-- Filter & System Controls -->
-  <div class="controls-bar">
-    <select id="book-select" onchange="filterByBook(this.value)">
-      <option value="ALL">All Books Combined (Encompassing Study)</option>
-    </select>
-    <div>
-      <button class="btn-primary" onclick="triggerImport()">+ Bulk Import</button>
-      <button onclick="exportData()">Export</button>
-      <button onclick="resetApp()">Reset</button>
-      <input type="file" id="file-input" class="hidden" accept=".json" onchange="importJSON(event)">
-    </div>
-  </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+                Going away or taking a break? Pause your deck to prevent overdue card backlogs. All due dates will be shifted forward by your chosen number of days.
+            </p>
 
-  <!-- Study Mode Selector Tabs -->
-  <div class="technique-tabs">
-    <button class="tab-btn active" id="tab-feynman" onclick="setMode('feynman')">Feynman Technique</button>
-    <button class="tab-btn" id="tab-cloze" onclick="setMode('cloze')">Cloze Technique</button>
-    <button class="tab-btn" id="tab-standard" onclick="setMode('standard')">Standard Q&A</button>
-  </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Days to Freeze & Shift Forward</label>
+                <input type="number" id="vacation-days-input" min="1" max="180" value="7" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500">
+            </div>
 
-  <!-- Active Flashcard Display -->
-  <div class="card-container" id="card-display">
-    <div>
-      <div class="card-meta">
-        <span id="card-book-title">BOOK TITLE</span>
-        <span id="card-box-label">LEITNER BOX 1</span>
-      </div>
-      <div class="card-prompt" id="card-prompt">No cards loaded. Please click "+ Bulk Import" to add JSON flashcards.</div>
-
-      <!-- Mode 1: Feynman Technique -->
-      <div id="mode-feynman-panel" class="mode-panel">
-        <textarea id="feynman-input" placeholder="Step 1: Teach / Explain this concept in simple terms as if explaining to someone else..."></textarea>
-        <button onclick="toggleAnswer()" style="width:100%;">Compare with Model Answer</button>
-      </div>
-
-      <!-- Mode 2: Cloze Technique -->
-      <div id="mode-cloze-panel" class="mode-panel hidden">
-        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:10px;">Fill in the target phrase mentally, then reveal:</p>
-        <button onclick="toggleAnswer()" style="width:100%;">Reveal Blank Target</button>
-      </div>
-
-      <!-- Mode 3: Standard Q&A -->
-      <div id="mode-standard-panel" class="mode-panel hidden">
-        <button onclick="toggleAnswer()" style="width:100%;">Show Answer</button>
-      </div>
-
-      <!-- Shared Model Answer Output -->
-      <div id="model-answer" class="model-answer-box hidden"></div>
+            <div class="flex items-center space-x-2 pt-2">
+                <button onclick="closeModal('modal-vacation')" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl">Cancel</button>
+                <button onclick="applyVacationFreeze()" class="flex-1 py-2.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-sky-600/30">Apply Freeze Shift</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Review Rating Buttons -->
-    <div class="card-actions">
-      <button class="btn-success" onclick="rateCard(true)">Got It Right</button>
-      <button class="btn-danger" onclick="rateCard(false)">Needs Review</button>
+    <!-- MODAL 3: CREATE / EDIT CARD MODAL -->
+    <div id="modal-card-editor" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <h3 id="editor-modal-title" class="text-base font-bold text-white">Create New Flashcard</h3>
+                <button onclick="closeModal('modal-card-editor')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form id="card-form" onsubmit="handleCardFormSubmit(event)" class="p-5 overflow-y-auto space-y-4 text-xs">
+                <input type="hidden" id="edit-card-id" value="">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Book Title *</label>
+                        <input type="text" id="form-book" required placeholder="e.g. Les Misérables" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Soft Pastel Theme Color</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="color" id="form-color-picker" value="#fef3c7" onchange="document.getElementById('form-pastel').value = this.value" class="w-9 h-9 rounded-lg bg-transparent border-0 cursor-pointer">
+                            <input type="text" id="form-pastel" value="#fef3c7" placeholder="#fef3c7" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Book Cover Image Path / URL</label>
+                        <input type="text" id="form-cover-image" placeholder="images/cover.jpg or https://..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Question Prompt Image Path / URL</label>
+                        <input type="text" id="form-prompt-image" placeholder="images/diagram.jpg or https://..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Question Prompt / Concept Challenge *</label>
+                    <textarea id="form-prompt" required rows="3" placeholder="What pivotal act of kindness transforms Jean Valjean's life?" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:border-indigo-500 focus:outline-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Model Answer *</label>
+                    <textarea id="form-answer" required rows="3" placeholder="Bishop Myriel gives Valjean the silver candlesticks..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:border-indigo-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Cloze Target Term (Word/Phrase to Mask)</label>
+                        <input type="text" id="form-cloze" placeholder="e.g. silver candlesticks" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Tags (Comma-separated)</label>
+                        <input type="text" id="form-tags" placeholder="Volume 1, Character, Redemption" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-white focus:border-indigo-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                    <button type="button" id="delete-card-btn" onclick="deleteCurrentEditingCard()" class="px-3 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-xl font-semibold hidden">Delete Card</button>
+                    <div class="flex items-center space-x-2 ml-auto">
+                        <button type="button" onclick="closeModal('modal-card-editor')" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-xl font-semibold">Cancel</button>
+                        <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold shadow-md">Save Card</button>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // Distinct theme color palettes per book
-    const BOOK_PALETTES = {
-      "Les Misérables": { accent: "#e11d48", glow: "rgba(225, 29, 72, 0.25)" },
-      "The Count of Monte Cristo": { accent: "#2563eb", glow: "rgba(37, 99, 235, 0.25)" },
-      "DEFAULT": { accent: "#f59e0b", glow: "rgba(245, 158, 11, 0.25)" }
-    };
+    <!-- MODAL 4: DATA AGILITY (IMPORT / EXPORT / RESET) MODAL -->
+    <div id="modal-data" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-xl p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-database text-indigo-400"></i>
+                    <span>Deck Data Agility & Backup</span>
+                </h3>
+                <button onclick="closeModal('modal-data')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
 
-    let cards = [];
-    let filteredCards = [];
-    let currentIndex = 0;
-    let currentMode = 'feynman';
-    let currentBookFilter = 'ALL';
+            <p class="text-xs text-slate-300">
+                Export your full literature collection with SM-2 review progress, or import cards in the standardized JSON schema.
+            </p>
 
-    // App Initialization
-    window.onload = function() {
-      const saved = localStorage.getItem('gemini_flashcards');
-      if (saved) {
-        cards = JSON.parse(saved);
-        updateBookshelf();
-        populateBookSelect();
-        applyFilter();
-      }
-    };
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <button onclick="exportDeckJSON()" class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl flex items-center space-x-3 text-left transition">
+                    <i class="fa-solid fa-download text-emerald-400 text-xl"></i>
+                    <div>
+                        <div class="text-xs font-bold text-white">Export Deck JSON</div>
+                        <div class="text-[10px] text-slate-400">Download backup file</div>
+                    </div>
+                </button>
+                <label class="p-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl flex items-center space-x-3 text-left cursor-pointer transition">
+                    <i class="fa-solid fa-file-import text-indigo-400 text-xl"></i>
+                    <div>
+                        <div class="text-xs font-bold text-white">Import JSON File</div>
+                        <div class="text-[10px] text-slate-400">Upload JSON deck file</div>
+                    </div>
+                    <input type="file" id="json-file-input" accept=".json" onchange="importDeckJSON(event)" class="hidden">
+                </label>
+            </div>
 
-    function setMode(mode) {
-      currentMode = mode;
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(`tab-${mode}`).classList.add('active');
+            <div class="pt-3 border-t border-slate-800">
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Direct JSON Inspector / Editor</label>
+                <textarea id="json-raw-area" rows="5" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 font-mono text-[11px] text-emerald-400 focus:outline-none"></textarea>
+                <div class="flex justify-between items-center mt-2">
+                    <button onclick="loadRawJSONFromArea()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold">Load Raw JSON</button>
+                    <button onclick="resetAllDataToDefault()" class="px-3 py-1.5 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-lg text-xs font-semibold">Reset to Factory Demo</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      document.getElementById('mode-feynman-panel').classList.add('hidden');
-      document.getElementById('mode-cloze-panel').classList.add('hidden');
-      document.getElementById('mode-standard-panel').classList.add('hidden');
-      document.getElementById(`mode-${mode}-panel`).classList.remove('hidden');
+    <!-- MODAL 5: IMAGE LIGHTBOX MODAL -->
+    <div id="modal-lightbox" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-lg hidden items-center justify-center p-4" onclick="closeModal('modal-lightbox')">
+        <div class="max-w-4xl max-h-[90vh] relative">
+            <img id="lightbox-img" src="" alt="Enlarged Diagram" class="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl border border-slate-700">
+            <p class="text-center text-xs text-slate-400 mt-2">Click anywhere to close preview</p>
+        </div>
+    </div>
 
-      document.getElementById('model-answer').classList.add('hidden');
-      renderCard();
-    }
+    <!-- FLOATING TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-slate-800 border border-slate-700 text-slate-100 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-message" class="text-xs font-semibold">Action completed successfully</span>
+    </div>
 
-    function applyBookPalette(bookTitle) {
-      const palette = BOOK_PALETTES[bookTitle] || BOOK_PALETTES["DEFAULT"];
-      document.documentElement.style.setProperty('--accent-color', palette.accent);
-      document.documentElement.style.setProperty('--accent-glow', palette.glow);
-    }
+    <script>
+        const STORAGE_KEY_CARDS = 'ebbinghaus_lit_cards_v2';
+        const STORAGE_KEY_STATS = 'ebbinghaus_lit_stats_v2';
 
-    function updateBookshelf() {
-      const shelf = document.getElementById('bookshelf');
-      shelf.innerHTML = '';
+        // Pre-loaded Demo Data for Les Misérables & The Count of Monte Cristo
+        const DEFAULT_CARDS = [
+            {
+                id: "les_mis_1",
+                book: "Les Misérables",
+                coverImage: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=400",
+                prompt: "What pivotal act of mercy by Bishop Myriel transforms Jean Valjean's spiritual trajectory after 19 years of hard labor?",
+                promptImage: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=600",
+                answer: "Bishop Myriel tells the police that he gave Jean Valjean the silver candlesticks as a gift after Valjean stole them, charging Valjean to use the silver to become an honest man.",
+                clozeTarget: "silver candlesticks",
+                tags: ["Volume 1", "Jean Valjean", "Redemption", "Bishop Myriel"],
+                pastelColor: "#fef3c7",
+                interval: 1,
+                repetition: 0,
+                easeFactor: 2.5,
+                dueDate: new Date().toISOString(),
+                box: 1
+            },
+            {
+                id: "les_mis_2",
+                book: "Les Misérables",
+                coverImage: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=400",
+                prompt: "How does Inspector Javert view morality, and why does Valjean's unexpected mercy create a fatal crisis for him?",
+                promptImage: "",
+                answer: "Javert sees morality through rigid law enforcement. When Valjean spares his life at the barricades, Javert cannot reconcile a criminal performing higher moral good than the law, leading him to throw himself into the Seine.",
+                clozeTarget: "rigid law enforcement",
+                tags: ["Javert", "Antagonist", "Morality"],
+                pastelColor: "#fef3c7",
+                interval: 1,
+                repetition: 0,
+                easeFactor: 2.5,
+                dueDate: new Date().toISOString(),
+                box: 1
+            },
+            {
+                id: "les_mis_3",
+                book: "Les Misérables",
+                coverImage: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=400",
+                prompt: "What historical event serves as the central climax in the middle section of Les Misérables where Marius and Enjolras fight?",
+                promptImage: "",
+                answer: "The Paris June Rebellion of 1832, where republican students build barricades following the funeral of General Jean Maximilien Lamarque.",
+                clozeTarget: "June Rebellion of 1832",
+                tags: ["History", "Barricades", "Enjolras", "Marius"],
+                pastelColor: "#fef3c7",
+                interval: 1,
+                repetition: 0,
+                easeFactor: 2.5,
+                dueDate: new Date().toISOString(),
+                box: 1
+            },
+            {
+                id: "monte_cristo_1",
+                book: "The Count of Monte Cristo",
+                coverImage: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=400",
+                prompt: "Who is Abbé Faria, and what legacy does he bestow upon Edmond Dantès inside the Château d'If?",
+                promptImage: "",
+                answer: "Abbé Faria is an Italian priest and scholar who educates Dantès in languages, history, and science, and reveals the secret location of the vast Spada treasure on the island of Monte Cristo.",
+                clozeTarget: "Spada treasure",
+                tags: ["Château d'If", "Abbé Faria", "Education"],
+                pastelColor: "#dbeafe",
+                interval: 1,
+                repetition: 0,
+                easeFactor: 2.5,
+                dueDate: new Date().toISOString(),
+                box: 1
+            },
+            {
+                id: "monte_cristo_2",
+                book: "The Count of Monte Cristo",
+                coverImage: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=400",
+                prompt: "Who are the three primary conspirators behind Edmond Dantès's imprisonment and what are their respective motives?",
+                promptImage: "",
+                answer: "Fernand Mondego (jealous of Mercédès' love), Danglars (envious of Dantès' promotion to captain), and Gérard de Villefort (protecting his father's Bonapartist treason).",
+                clozeTarget: "Fernand Mondego",
+                tags: ["Conspirators", "Villefort", "Danglars", "Revenge"],
+                pastelColor: "#dbeafe",
+                interval: 1,
+                repetition: 0,
+                easeFactor: 2.5,
+                dueDate: new Date().toISOString(),
+                box: 1
+            },
+            {
+                id: "monte_cristo_3",
+                book: "The Count of Monte Cristo",
+                coverImage: "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&q=80&w=400",
+                prompt: "What philosophical maxim summarizes Monte Cristo's final lesson written to Maximilien Morrel?",
+                promptImage: "",
+                answer: "All human wisdom is contained in two words: 'Wait and hope.'",
+                clozeTarget: "Wait and hope",
+                tags: ["Philosophy", "Providence", "Ending"],
+                pastelColor: "#dbeafe",
+                interval: 1,
+                repetition: 0,
+                easeFactor: 2.5,
+                dueDate: new Date().toISOString(),
+                box: 1
+            }
+        ];
 
-      // Add "All Books" tile
-      const allTile = document.createElement('div');
-      allTile.className = `book-cover-card ${currentBookFilter === 'ALL' ? 'active' : ''}`;
-      allTile.onclick = () => filterByBook('ALL');
-      allTile.innerHTML = `<div class="book-cover-fallback">ALL BOOKS</div>`;
-      shelf.appendChild(allTile);
+        // Global State Variables
+        let cards = [];
+        let activeBookFilter = 'ALL';
+        let activeTechniqueTab = 'active-recall'; // 'active-recall', 'feynman', 'cloze'
+        let currentQueue = [];
+        let currentCardIndex = 0;
+        let isAnswerRevealed = false;
+        let stats = {
+            todayCount: 0,
+            lastReviewDate: '',
+            streak: 1
+        };
 
-      // Unique books map
-      const bookMap = {};
-      cards.forEach(c => {
-        if (!bookMap[c.book]) bookMap[c.book] = c.coverImage;
-      });
+        /**
+         * Calculates SuperMemo SM-2 algorithm interval, repetition, and ease factor updates
+         * @param {Object} card 
+         * @param {number} rating - 1: Again, 2: Hard, 3: Good, 4: Easy
+         */
+        function calculateSM2(card, rating) {
+            let { interval, repetition, easeFactor, box } = card;
 
-      Object.keys(bookMap).forEach(bookTitle => {
-        const coverUrl = bookMap[bookTitle];
-        const cardTile = document.createElement('div');
-        cardTile.className = `book-cover-card ${currentBookFilter === bookTitle ? 'active' : ''}`;
-        cardTile.onclick = () => filterByBook(bookTitle);
+            if (rating === 1) { // AGAIN (Red)
+                repetition = 0;
+                interval = 1;
+                easeFactor = Math.max(1.3, easeFactor - 0.2);
+                box = 1;
+            } else if (rating === 2) { // HARD (Orange)
+                repetition = repetition + 1;
+                interval = Math.max(1, Math.round(interval * 1.2));
+                easeFactor = Math.max(1.3, easeFactor - 0.15);
+                box = Math.min(5, Math.max(1, box));
+            } else if (rating === 3) { // GOOD (Green)
+                repetition = repetition + 1;
+                if (repetition === 1) interval = 1;
+                else if (repetition === 2) interval = 6;
+                else interval = Math.round(interval * easeFactor);
+                
+                easeFactor = easeFactor + (0.1 - (5 - 3) * (0.08 + (5 - 3) * 0.02));
+                easeFactor = Math.max(1.3, easeFactor);
+                box = Math.min(5, box + 1);
+            } else if (rating === 4) { // EASY (Blue)
+                repetition = repetition + 1;
+                if (repetition === 1) interval = 4;
+                else if (repetition === 2) interval = 10;
+                else interval = Math.round(interval * easeFactor * 1.3);
+                
+                easeFactor = easeFactor + 0.15;
+                box = Math.min(5, box + 1);
+            }
 
-        if (coverUrl) {
-          cardTile.innerHTML = `<img src="${coverUrl}" alt="${bookTitle}" onerror="this.outerHTML='<div class=\\'book-cover-fallback\\'>${bookTitle}</div>'">`;
-        } else {
-          cardTile.innerHTML = `<div class="book-cover-fallback">${bookTitle}</div>`;
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + interval);
+
+            return {
+                interval,
+                repetition,
+                easeFactor: parseFloat(easeFactor.toFixed(2)),
+                dueDate: dueDate.toISOString(),
+                box
+            };
         }
-        shelf.appendChild(cardTile);
-      });
-    }
 
-    function populateBookSelect() {
-      const select = document.getElementById('book-select');
-      select.innerHTML = '<option value="ALL">All Books Combined (Encompassing Study)</option>';
-      const books = [...new Set(cards.map(c => c.book))];
-      books.forEach(b => {
-        const opt = document.createElement('option');
-        opt.value = b;
-        opt.textContent = b;
-        select.appendChild(opt);
-      });
-      select.value = currentBookFilter;
-    }
+        /**
+         * Shifts all card due dates forward by N days to pause reviews during holidays
+         */
+        function applyVacationFreeze() {
+            const input = document.getElementById('vacation-days-input');
+            const days = parseInt(input.value) || 0;
 
-    function filterByBook(bookTitle) {
-      currentBookFilter = bookTitle;
-      document.getElementById('book-select').value = bookTitle;
-      applyBookPalette(bookTitle === 'ALL' ? 'DEFAULT' : bookTitle);
-      updateBookshelf();
-      applyFilter();
-    }
+            if (days <= 0) {
+                showToast("Please enter a valid number of days", "error");
+                return;
+            }
 
-    function applyFilter() {
-      if (currentBookFilter === 'ALL') {
-        filteredCards = [...cards];
-      } else {
-        filteredCards = cards.filter(c => c.book === currentBookFilter);
-      }
-      currentIndex = 0;
-      updateBoxCounts();
-      renderCard();
-    }
+            cards.forEach(card => {
+                const currentDue = new Date(card.dueDate);
+                currentDue.setDate(currentDue.getDate() + days);
+                card.dueDate = currentDue.toISOString();
+            });
 
-    function renderCard() {
-      if (filteredCards.length === 0) {
-        document.getElementById('card-prompt').textContent = "No cards available for this selection.";
-        document.getElementById('card-book-title').textContent = "N/A";
-        document.getElementById('model-answer').classList.add('hidden');
-        return;
-      }
-
-      const card = filteredCards[currentIndex];
-      document.getElementById('card-book-title').textContent = card.book.toUpperCase();
-      document.getElementById('card-box-label').textContent = `LEITNER BOX ${card.box || 1}`;
-      document.getElementById('feynman-input').value = '';
-      document.getElementById('model-answer').classList.add('hidden');
-
-      if (currentMode === 'cloze' && card.clozeTarget) {
-        const clozePrompt = card.answer.replace(
-          new RegExp(card.clozeTarget, 'gi'),
-          `<span class="cloze-blank">[ ${card.clozeTarget.length} letters ]</span>`
-        );
-        document.getElementById('card-prompt').innerHTML = `<strong>Context:</strong> ${card.prompt}<br><br><strong>Fill Blank:</strong> ${clozePrompt}`;
-      } else {
-        document.getElementById('card-prompt').textContent = card.prompt;
-      }
-
-      applyBookPalette(card.book);
-    }
-
-    function toggleAnswer() {
-      const card = filteredCards[currentIndex];
-      if (!card) return;
-
-      const ansBox = document.getElementById('model-answer');
-      if (currentMode === 'cloze' && card.clozeTarget) {
-        ansBox.innerHTML = `<strong>Target Answer:</strong> <span style="color:var(--accent-color); font-weight:bold;">${card.clozeTarget}</span><br><br><strong>Full Text:</strong> ${card.answer}`;
-      } else {
-        ansBox.innerHTML = `<strong>Model Answer:</strong> ${card.answer}`;
-      }
-      ansBox.classList.toggle('hidden');
-    }
-
-    function rateCard(success) {
-      if (filteredCards.length === 0) return;
-      const card = filteredCards[currentIndex];
-      if (!card.box) card.box = 1;
-
-      if (success) {
-        card.box = Math.min(5, card.box + 1);
-      } else {
-        card.box = 1;
-      }
-
-      saveData();
-      updateBoxCounts();
-      currentIndex = (currentIndex + 1) % filteredCards.length;
-      renderCard();
-    }
-
-    function updateBoxCounts() {
-      const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, R: 0 };
-      cards.forEach(c => {
-        const b = c.box || 1;
-        counts[b] = (counts[b] || 0) + 1;
-      });
-      document.getElementById('b1-count').textContent = counts[1];
-      document.getElementById('b2-count').textContent = counts[2];
-      document.getElementById('b3-count').textContent = counts[3];
-      document.getElementById('b4-count').textContent = counts[4];
-      document.getElementById('b5-count').textContent = counts[5];
-      document.getElementById('br-count').textContent = counts['R'] || 0;
-    }
-
-    function triggerImport() { document.getElementById('file-input').click(); }
-
-    function importJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          cards = Array.isArray(imported) ? imported : [imported];
-          saveData();
-          updateBookshelf();
-          populateBookSelect();
-          applyFilter();
-        } catch (err) {
-          alert("Invalid JSON file format.");
+            saveCardsToStorage();
+            closeModal('modal-vacation');
+            renderApp();
+            showToast(`Vacation mode applied! All due dates shifted by ${days} days.`);
         }
-      };
-      reader.readAsText(file);
-    }
 
-    function saveData() { localStorage.setItem('gemini_flashcards', JSON.stringify(cards)); }
+        /**
+         * Parses model answer and generates Cloze masked HTML replacing target term with mask indicator
+         */
+        function generateClozeHTML(answerText, target) {
+            if (!target || target.trim() === '') {
+                return answerText;
+            }
 
-    function exportData() {
-      const blob = new Blob([JSON.stringify(cards, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = "flashcards_backup.json";
-      a.click();
-    }
+            const regex = new RegExp(`(${target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            if (!regex.test(answerText)) {
+                return answerText + ` <br/><span class="text-amber-400 font-semibold">[Cloze Target: ${target}]</span>`;
+            }
 
-    function resetApp() {
-      if (confirm("Reset all stored cards and progress?")) {
-        localStorage.removeItem('gemini_flashcards');
-        cards = [];
-        filteredCards = [];
-        updateBookshelf();
-        populateBookSelect();
-        applyFilter();
-      }
-    }
-  </script>
+            const letterCount = target.length;
+            return answerText.replace(regex, `<span class="bg-indigo-950 text-indigo-300 font-mono px-2 py-1 rounded-md border border-indigo-500/50 shadow-inner inline-block">[ 🔒 Masked Target (${letterCount} letters) ]</span>`);
+        }
+
+        /**
+         * Native Speech Synthesis helper for TTS
+         */
+        function speakText(text) {
+            if (!('speechSynthesis' in window)) {
+                showToast("Text-to-speech not supported on this browser.", "error");
+                return;
+            }
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.95;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+            showToast("Playing audio narration...");
+        }
+
+        /**
+         * Main Render Controller
+         */
+        function renderApp() {
+            updateStreakAndStats();
+            renderBookshelf();
+            renderQueueStats();
+            buildCurrentQueue();
+            renderStudyCard();
+        }
+
+        function updateStreakAndStats() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (stats.lastReviewDate === today) {
+                // Same day
+            } else if (stats.lastReviewDate) {
+                const lastDate = new Date(stats.lastReviewDate);
+                const currDate = new Date(today);
+                const diffTime = Math.abs(currDate - lastDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 1) {
+                    // Consecutive day
+                } else if (diffDays > 1) {
+                    stats.streak = 1;
+                }
+            }
+
+            document.getElementById('streak-count-display').innerText = stats.streak;
+            document.getElementById('today-count-display').innerText = stats.todayCount;
+            localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(stats));
+        }
+
+        function incrementTodayReview() {
+            const today = new Date().toISOString().split('T')[0];
+            if (stats.lastReviewDate !== today) {
+                if (stats.lastReviewDate) {
+                    const lastDate = new Date(stats.lastReviewDate);
+                    const currDate = new Date(today);
+                    const diffDays = Math.ceil(Math.abs(currDate - lastDate) / (1000 * 60 * 60 * 24));
+                    if (diffDays === 1) stats.streak += 1;
+                    else stats.streak = 1;
+                } else {
+                    stats.streak = 1;
+                }
+                stats.todayCount = 1;
+                stats.lastReviewDate = today;
+            } else {
+                stats.todayCount += 1;
+            }
+            updateStreakAndStats();
+        }
+
+        function renderBookshelf() {
+            const container = document.getElementById('bookshelf-grid');
+            container.innerHTML = '';
+
+            // Map cards by book title
+            const booksMap = {};
+            cards.forEach(c => {
+                if (!booksMap[c.book]) {
+                    booksMap[c.book] = {
+                        title: c.book,
+                        coverImage: c.coverImage,
+                        pastelColor: c.pastelColor || '#fef3c7',
+                        totalCards: 0,
+                        dueCards: 0,
+                        masteredCards: 0
+                    };
+                }
+                booksMap[c.book].totalCards++;
+                
+                const isDue = new Date(c.dueDate) <= new Date();
+                if (isDue) booksMap[c.book].dueCards++;
+                if (c.box >= 5) booksMap[c.book].masteredCards++;
+            });
+
+            const bookKeys = Object.keys(booksMap);
+            if (bookKeys.length === 0) {
+                container.innerHTML = `<div class="col-span-full p-6 text-center text-slate-400 glass-panel rounded-2xl">No books found. Click "+ New Card" to add one!</div>`;
+                return;
+            }
+
+            bookKeys.forEach(title => {
+                const b = booksMap[title];
+                const activeClass = activeBookFilter === b.title ? 'ring-2 ring-indigo-500 scale-[1.02]' : 'hover:scale-[1.01] opacity-90 hover:opacity-100';
+                const percentMastered = Math.round((b.masteredCards / b.totalCards) * 100) || 0;
+
+                const cardHTML = `
+                    <div onclick="filterByBook('${escapeQuotes(b.title)}')" class="glass-panel rounded-2xl p-3.5 border border-slate-700/80 cursor-pointer transition-all duration-200 flex flex-col justify-between ${activeClass}" style="border-top: 4px solid ${b.pastelColor}">
+                        <div class="flex space-x-3 items-center">
+                            <!-- Cover Thumbnail with Pastel Fallback -->
+                            <div class="w-14 h-20 rounded-lg overflow-hidden bg-slate-800 flex-shrink-0 relative shadow-md border border-slate-700/60" style="background-color: ${b.pastelColor}20">
+                                ${b.coverImage ? `
+                                    <img src="${b.coverImage}" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-full h-full object-cover">
+                                    <div class="w-full h-full hidden flex-col items-center justify-center p-1 text-center" style="color: ${b.pastelColor}">
+                                        <i class="fa-solid fa-book text-xl mb-1"></i>
+                                        <span class="text-[9px] font-bold line-clamp-2 uppercase">${b.title}</span>
+                                    </div>
+                                ` : `
+                                    <div class="w-full h-full flex flex-col items-center justify-center p-1 text-center" style="color: ${b.pastelColor}">
+                                        <i class="fa-solid fa-book text-xl mb-1"></i>
+                                        <span class="text-[9px] font-bold line-clamp-2 uppercase">${b.title}</span>
+                                    </div>
+                                `}
+                            </div>
+                            
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-sm font-bold text-white truncate">${b.title}</h3>
+                                <div class="flex items-center space-x-2 mt-1 text-xs text-slate-400">
+                                    <span>${b.totalCards} cards</span>
+                                    <span>•</span>
+                                    <span class="${b.dueCards > 0 ? 'text-amber-400 font-bold' : 'text-slate-400'}">${b.dueCards} due</span>
+                                </div>
+
+                                <div class="mt-2.5 space-y-1">
+                                    <div class="flex justify-between text-[10px] font-medium text-slate-400">
+                                        <span>Mastery Progress</span>
+                                        <span>${percentMastered}%</span>
+                                    </div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full rounded-full" style="width: ${percentMastered}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                            <span class="text-[11px] font-semibold" style="color: ${b.pastelColor}">
+                                ${activeBookFilter === b.title ? 'Active Deck' : 'Click to Study'}
+                            </span>
+                            <button onclick="event.stopPropagation(); resetBookProgress('${escapeQuotes(b.title)}')" class="text-slate-500 hover:text-red-400 text-[11px]" title="Reset SM-2 Progress for this book">
+                                <i class="fa-solid fa-rotate-left mr-1"></i>Reset Progress
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
+
+        function renderQueueStats() {
+            let dueCount = 0;
+            let boxes = [0, 0, 0, 0, 0];
+
+            cards.forEach(c => {
+                const isDue = new Date(c.dueDate) <= new Date();
+                if (isDue) dueCount++;
+                const boxIndex = Math.min(5, Math.max(1, c.box || 1)) - 1;
+                boxes[boxIndex]++;
+            });
+
+            document.getElementById('queue-due-total').innerText = dueCount;
+            document.getElementById('queue-cards-total').innerText = cards.length;
+            document.getElementById('box-1-count').innerText = boxes[0];
+            document.getElementById('box-2-count').innerText = boxes[1];
+            document.getElementById('box-3-count').innerText = boxes[2];
+            document.getElementById('box-4-count').innerText = boxes[3];
+            document.getElementById('box-5-count').innerText = boxes[4];
+        }
+
+        function filterByBook(title) {
+            activeBookFilter = title;
+            const badge = document.getElementById('active-filter-badge');
+            badge.innerText = title === 'ALL' ? 'All Literature' : title;
+            renderApp();
+        }
+
+        function buildCurrentQueue() {
+            const now = new Date();
+            let filtered = cards;
+            if (activeBookFilter !== 'ALL') {
+                filtered = cards.filter(c => c.book === activeBookFilter);
+            }
+
+            // Priority: Due cards first, then sorted by dueDate
+            currentQueue = filtered.filter(c => new Date(c.dueDate) <= now);
+            
+            // If no cards due, include upcoming cards for extra study option
+            if (currentQueue.length === 0) {
+                currentQueue = [...filtered].sort((a,b) => new Date(a.dueDate) - new Date(b.dueDate));
+            }
+
+            if (currentCardIndex >= currentQueue.length) {
+                currentCardIndex = 0;
+            }
+            isAnswerRevealed = false;
+        }
+
+        function renderStudyCard() {
+            const container = document.getElementById('study-card-container');
+            if (!container) return;
+
+            if (currentQueue.length === 0) {
+                container.innerHTML = `
+                    <div class="p-10 text-center space-y-4">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-3xl mx-auto shadow-lg">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">All Caught Up!</h3>
+                        <p class="text-sm text-slate-400 max-w-md mx-auto">You've completed all scheduled active recall reviews for this deck. Excellent work!</p>
+                        <button onclick="filterByBook('ALL')" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-xs shadow-lg">View All Decks</button>
+                    </div>
+                `;
+                return;
+            }
+
+            const card = currentQueue[currentCardIndex];
+            const isDueNow = new Date(card.dueDate) <= new Date();
+            const pastel = card.pastelColor || '#fef3c7';
+
+            // Next SM-2 interval projections
+            const sm2_again = calculateSM2(card, 1);
+            const sm2_hard = calculateSM2(card, 2);
+            const sm2_good = calculateSM2(card, 3);
+            const sm2_easy = calculateSM2(card, 4);
+
+            let techniqueContentHTML = '';
+
+            // TAB 1: ACTIVE RECALL (STANDARD Q&A)
+            if (activeTechniqueTab === 'active-recall') {
+                techniqueContentHTML = `
+                    <div class="space-y-4">
+                        <div class="text-xs uppercase font-bold tracking-wider text-slate-400 flex items-center space-x-2">
+                            <i class="fa-solid fa-circle-question text-indigo-400"></i>
+                            <span>Question Prompt</span>
+                        </div>
+                        <p class="text-base sm:text-lg font-serif text-slate-100 leading-relaxed selectable-text">
+                            ${escapeHTML(card.prompt)}
+                        </p>
+                    </div>
+                `;
+            } 
+            // TAB 2: FEYNMAN TECHNIQUE
+            else if (activeTechniqueTab === 'feynman') {
+                techniqueContentHTML = `
+                    <div class="space-y-3">
+                        <div class="text-xs uppercase font-bold tracking-wider text-slate-400 flex items-center space-x-2">
+                            <i class="fa-solid fa-chalkboard-user text-amber-400"></i>
+                            <span>Feynman Technique: Explain in plain terms</span>
+                        </div>
+                        <p class="text-sm font-serif text-slate-200 leading-relaxed italic selectable-text">
+                            "${escapeHTML(card.prompt)}"
+                        </p>
+                        <textarea id="feynman-user-input" rows="3" placeholder="Type your simple explanation here as if teaching a beginner before revealing..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500"></textarea>
+                    </div>
+                `;
+            }
+            // TAB 3: CLOZE TECHNIQUE
+            else if (activeTechniqueTab === 'cloze') {
+                const clozeSentence = generateClozeHTML(escapeHTML(card.answer), escapeHTML(card.clozeTarget));
+                techniqueContentHTML = `
+                    <div class="space-y-4">
+                        <div class="text-xs uppercase font-bold tracking-wider text-slate-400 flex items-center space-x-2">
+                            <i class="fa-solid fa-mask text-sky-400"></i>
+                            <span>Cloze Mask Active Recall</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Recall the masked phrase from the literature prompt:</p>
+                        <p class="text-sm font-serif text-slate-300 italic">"${escapeHTML(card.prompt)}"</p>
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700/80 text-sm sm:text-base leading-relaxed selectable-text">
+                            ${clozeSentence}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <!-- Card Header Accent Bar -->
+                <div class="p-4 border-b border-slate-800 flex items-center justify-between gap-2" style="background-color: ${pastel}12; border-top: 4px solid ${pastel}">
+                    <div class="flex items-center space-x-2 min-w-0">
+                        <span class="px-2.5 py-1 rounded-md text-xs font-bold truncate" style="background-color: ${pastel}; color: #0f172a">
+                            ${escapeHTML(card.book)}
+                        </span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-slate-800 text-slate-300 border border-slate-700">
+                            Box ${card.box || 1}
+                        </span>
+                        ${isDueNow ? '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/20 text-amber-400 border border-amber-500/30">Due Now</span>' : '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-400">Review</span>'}
+                    </div>
+
+                    <div class="flex items-center space-x-1.5">
+                        <button onclick="speakText('${escapeQuotes(card.prompt)}')" class="p-2 text-slate-400 hover:text-indigo-300 rounded-lg text-sm" title="Read Prompt Aloud (TTS)">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                        <button onclick="openEditModal('${card.id}')" class="p-2 text-slate-400 hover:text-white rounded-lg text-sm" title="Edit Card">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="p-5 sm:p-6 space-y-5">
+                    
+                    <!-- Question / Prompt Section -->
+                    ${techniqueContentHTML}
+
+                    <!-- Optional Prompt Image Thumbnail -->
+                    ${card.promptImage ? `
+                        <div class="relative group cursor-pointer overflow-hidden rounded-xl border border-slate-700 max-h-48 bg-slate-950" onclick="openLightbox('${card.promptImage}')">
+                            <img src="${card.promptImage}" class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+                            <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold">
+                                <i class="fa-solid fa-magnifying-glass-plus mr-1.5"></i> Click to Enlarge Diagram
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Tags Pills -->
+                    <div class="flex flex-wrap gap-1.5 pt-1">
+                        ${(card.tags || []).map(t => `<span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">#${escapeHTML(t)}</span>`).join('')}
+                    </div>
+
+                    <!-- REVEALED MODEL ANSWER SECTION -->
+                    ${isAnswerRevealed ? `
+                        <div class="mt-6 pt-5 border-t border-slate-800 space-y-4 animate-fadeIn">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs uppercase font-bold tracking-wider text-emerald-400 flex items-center space-x-2">
+                                    <i class="fa-solid fa-lightbulb"></i>
+                                    <span>Model Answer</span>
+                                </span>
+                                <button onclick="speakText('${escapeQuotes(card.answer)}')" class="text-xs text-slate-400 hover:text-emerald-400 flex items-center space-x-1">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                    <span>Listen</span>
+                                </button>
+                            </div>
+
+                            <p class="text-sm sm:text-base font-serif text-slate-100 leading-relaxed bg-slate-900/90 p-4 rounded-xl border border-slate-800 selectable-text">
+                                ${escapeHTML(card.answer)}
+                            </p>
+
+                            ${card.clozeTarget ? `
+                                <div class="text-xs text-slate-400 bg-indigo-950/40 p-2.5 rounded-lg border border-indigo-500/20 flex items-center space-x-2">
+                                    <i class="fa-solid fa-key text-indigo-400"></i>
+                                    <span>Key Target Term: <strong class="text-indigo-300">${escapeHTML(card.clozeTarget)}</strong></span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+
+                <!-- CARD BOTTOM ACTION / RATING BAR -->
+                <div class="p-4 bg-slate-950 border-t border-slate-800">
+                    ${!isAnswerRevealed ? `
+                        <button onclick="revealAnswer()" class="w-full touch-btn py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-eye"></i>
+                            <span>Reveal Model Answer (Spacebar)</span>
+                        </button>
+                    ` : `
+                        <div class="space-y-2">
+                            <p class="text-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Rate Active Recall Accuracy (Keys 1 - 4)</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <button onclick="rateCard(1)" class="touch-btn p-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-xl text-left transition group">
+                                    <div class="text-xs font-bold text-red-400 flex justify-between">
+                                        <span>[1] Again</span>
+                                        <span class="text-[10px] opacity-75">${sm2_again.interval}d</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-400 mt-0.5">Reset Box 1</div>
+                                </button>
+
+                                <button onclick="rateCard(2)" class="touch-btn p-2.5 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 rounded-xl text-left transition group">
+                                    <div class="text-xs font-bold text-orange-400 flex justify-between">
+                                        <span>[2] Hard</span>
+                                        <span class="text-[10px] opacity-75">${sm2_hard.interval}d</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-400 mt-0.5">Slow progress</div>
+                                </button>
+
+                                <button onclick="rateCard(3)" class="touch-btn p-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-left transition group">
+                                    <div class="text-xs font-bold text-emerald-400 flex justify-between">
+                                        <span>[3] Good</span>
+                                        <span class="text-[10px] opacity-75">${sm2_good.interval}d</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-400 mt-0.5">Standard SM-2</div>
+                                </button>
+
+                                <button onclick="rateCard(4)" class="touch-btn p-2.5 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 rounded-xl text-left transition group">
+                                    <div class="text-xs font-bold text-sky-400 flex justify-between">
+                                        <span>[4] Easy</span>
+                                        <span class="text-[10px] opacity-75">${sm2_easy.interval}d</span>
+                                    </div>
+                                    <div class="text-[10px] text-slate-400 mt-0.5">Fast track</div>
+                                </button>
+                            </div>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        function switchTechniqueTab(tab) {
+            activeTechniqueTab = tab;
+            ['active-recall', 'feynman', 'cloze'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    btn.className = "flex-1 py-2 rounded-lg transition-all flex items-center justify-center space-x-2 bg-indigo-600 text-white shadow";
+                } else {
+                    btn.className = "flex-1 py-2 rounded-lg transition-all flex items-center justify-center space-x-2 text-slate-400 hover:text-slate-200";
+                }
+            });
+            renderStudyCard();
+        }
+
+        function revealAnswer() {
+            isAnswerRevealed = true;
+            renderStudyCard();
+        }
+
+        function rateCard(rating) {
+            if (currentQueue.length === 0) return;
+            const currentCard = currentQueue[currentCardIndex];
+            
+            // Calculate SM-2 updates
+            const updated = calculateSM2(currentCard, rating);
+            
+            // Apply updates
+            Object.assign(currentCard, updated);
+            saveCardsToStorage();
+            incrementTodayReview();
+
+            // Next card logic
+            currentCardIndex++;
+            if (currentCardIndex >= currentQueue.length) {
+                currentCardIndex = 0;
+            }
+
+            isAnswerRevealed = false;
+            renderApp();
+            showToast(`Card scheduled for ${updated.interval} day(s) from now!`);
+        }
+
+        function openSearchModal() {
+            document.getElementById('modal-search').classList.remove('hidden');
+            document.getElementById('modal-search').classList.add('flex');
+            document.getElementById('search-input').focus();
+            renderSearchResults();
+        }
+
+        function renderSearchResults() {
+            const query = (document.getElementById('search-input').value || '').toLowerCase().trim();
+            const list = document.getElementById('search-results-list');
+            list.innerHTML = '';
+
+            const matched = cards.filter(c => {
+                const inBook = c.book.toLowerCase().includes(query);
+                const inPrompt = c.prompt.toLowerCase().includes(query);
+                const inAnswer = c.answer.toLowerCase().includes(query);
+                const inCloze = (c.clozeTarget || '').toLowerCase().includes(query);
+                const inTags = (c.tags || []).some(t => t.toLowerCase().includes(query));
+                return inBook || inPrompt || inAnswer || inCloze || inTags;
+            });
+
+            document.getElementById('search-count-badge').innerText = `${matched.length} cards match`;
+
+            if (matched.length === 0) {
+                list.innerHTML = `<div class="p-6 text-center text-slate-500 text-xs">No flashcards found matching search query.</div>`;
+                return;
+            }
+
+            matched.forEach(c => {
+                const html = `
+                    <div class="p-3 bg-slate-800/80 hover:bg-slate-800 border border-slate-700/80 rounded-xl transition flex flex-col justify-between gap-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-indigo-300" style="color: ${c.pastelColor}">${escapeHTML(c.book)}</span>
+                            <span class="text-[10px] font-semibold text-slate-400">Box ${c.box || 1} • Due: ${new Date(c.dueDate).toLocaleDateString()}</span>
+                        </div>
+                        <p class="text-xs font-serif text-slate-100 line-clamp-2">${escapeHTML(c.prompt)}</p>
+                        <p class="text-[11px] text-slate-400 line-clamp-1 italic">Answer: ${escapeHTML(c.answer)}</p>
+                        <div class="flex items-center justify-between pt-1 border-t border-slate-700/60 text-[11px]">
+                            <div class="flex space-x-1">
+                                ${(c.tags || []).map(t => `<span class="px-1.5 py-0.5 rounded text-[9px] bg-slate-900 text-slate-400">#${escapeHTML(t)}</span>`).join('')}
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="closeModal('modal-search'); openEditModal('${c.id}')" class="text-indigo-400 hover:text-indigo-300 font-semibold">Edit</button>
+                                <button onclick="closeModal('modal-search'); testSpecificCard('${c.id}')" class="text-emerald-400 hover:text-emerald-300 font-semibold">Test Card</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                list.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        function testSpecificCard(cardId) {
+            const index = cards.findIndex(c => c.id === cardId);
+            if (index !== -1) {
+                currentQueue = [cards[index]];
+                currentCardIndex = 0;
+                isAnswerRevealed = false;
+                renderStudyCard();
+                showToast("Testing selected card...");
+            }
+        }
+
+        function openCreateModal() {
+            document.getElementById('editor-modal-title').innerText = "Create New Flashcard";
+            document.getElementById('edit-card-id').value = "";
+            document.getElementById('card-form').reset();
+            document.getElementById('delete-card-btn').classList.add('hidden');
+            
+            // Default preset color
+            document.getElementById('form-pastel').value = "#fef3c7";
+            document.getElementById('form-color-picker').value = "#fef3c7";
+
+            document.getElementById('modal-card-editor').classList.remove('hidden');
+            document.getElementById('modal-card-editor').classList.add('flex');
+        }
+
+        function openEditModal(cardId) {
+            const card = cards.find(c => c.id === cardId);
+            if (!card) return;
+
+            document.getElementById('editor-modal-title').innerText = "Edit Flashcard";
+            document.getElementById('edit-card-id').value = card.id;
+            document.getElementById('form-book').value = card.book || "";
+            document.getElementById('form-pastel').value = card.pastelColor || "#fef3c7";
+            document.getElementById('form-color-picker').value = card.pastelColor || "#fef3c7";
+            document.getElementById('form-cover-image').value = card.coverImage || "";
+            document.getElementById('form-prompt-image').value = card.promptImage || "";
+            document.getElementById('form-prompt').value = card.prompt || "";
+            document.getElementById('form-answer').value = card.answer || "";
+            document.getElementById('form-cloze').value = card.clozeTarget || "";
+            document.getElementById('form-tags').value = (card.tags || []).join(', ');
+
+            document.getElementById('delete-card-btn').classList.remove('hidden');
+            document.getElementById('modal-card-editor').classList.remove('hidden');
+            document.getElementById('modal-card-editor').classList.add('flex');
+        }
+
+        function handleCardFormSubmit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-card-id').value;
+            const book = document.getElementById('form-book').value.trim();
+            const pastelColor = document.getElementById('form-pastel').value.trim() || "#fef3c7";
+            const coverImage = document.getElementById('form-cover-image').value.trim();
+            const promptImage = document.getElementById('form-prompt-image').value.trim();
+            const prompt = document.getElementById('form-prompt').value.trim();
+            const answer = document.getElementById('form-answer').value.trim();
+            const clozeTarget = document.getElementById('form-cloze').value.trim();
+            const tagsRaw = document.getElementById('form-tags').value;
+            const tags = tagsRaw.split(',').map(t => t.trim()).filter(t => t.length > 0);
+
+            if (editId) {
+                // Update existing
+                const card = cards.find(c => c.id === editId);
+                if (card) {
+                    card.book = book;
+                    card.pastelColor = pastelColor;
+                    card.coverImage = coverImage;
+                    card.promptImage = promptImage;
+                    card.prompt = prompt;
+                    card.answer = answer;
+                    card.clozeTarget = clozeTarget;
+                    card.tags = tags;
+                }
+                showToast("Flashcard updated!");
+            } else {
+                // Create new
+                const newCard = {
+                    id: "card_" + Date.now(),
+                    book,
+                    coverImage,
+                    prompt,
+                    promptImage,
+                    answer,
+                    clozeTarget,
+                    tags,
+                    pastelColor,
+                    interval: 1,
+                    repetition: 0,
+                    easeFactor: 2.5,
+                    dueDate: new Date().toISOString(),
+                    box: 1
+                };
+                cards.push(newCard);
+                showToast("New flashcard created!");
+            }
+
+            saveCardsToStorage();
+            closeModal('modal-card-editor');
+            renderApp();
+        }
+
+        function deleteCurrentEditingCard() {
+            const editId = document.getElementById('edit-card-id').value;
+            if (!editId) return;
+
+            cards = cards.filter(c => c.id !== editId);
+            saveCardsToStorage();
+            closeModal('modal-card-editor');
+            renderApp();
+            showToast("Card deleted.");
+        }
+
+        function resetBookProgress(bookTitle) {
+            cards.forEach(c => {
+                if (c.book === bookTitle) {
+                    c.interval = 1;
+                    c.repetition = 0;
+                    c.easeFactor = 2.5;
+                    c.dueDate = new Date().toISOString();
+                    c.box = 1;
+                }
+            });
+            saveCardsToStorage();
+            renderApp();
+            showToast(`Reset review progress for "${bookTitle}" back to Day 1.`);
+        }
+
+        function openVacationModal() {
+            document.getElementById('modal-vacation').classList.remove('hidden');
+            document.getElementById('modal-vacation').classList.add('flex');
+        }
+
+        function openDataModal() {
+            document.getElementById('json-raw-area').value = JSON.stringify(cards, null, 2);
+            document.getElementById('modal-data').classList.remove('hidden');
+            document.getElementById('modal-data').classList.add('flex');
+        }
+
+        function exportDeckJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `ebbinghaus_deck_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+            showToast("Exported JSON deck download!");
+        }
+
+        function importDeckJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        cards = imported;
+                        saveCardsToStorage();
+                        closeModal('modal-data');
+                        renderApp();
+                        showToast(`Successfully imported ${cards.length} cards!`);
+                    } else {
+                        showToast("Invalid JSON format. Expected array of cards.", "error");
+                    }
+                } catch(err) {
+                    showToast("Error parsing JSON file.", "error");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function loadRawJSONFromArea() {
+            try {
+                const text = document.getElementById('json-raw-area').value;
+                const parsed = JSON.parse(text);
+                if (Array.isArray(parsed)) {
+                    cards = parsed;
+                    saveCardsToStorage();
+                    closeModal('modal-data');
+                    renderApp();
+                    showToast("Loaded raw JSON deck state!");
+                } else {
+                    showToast("JSON must be an array of cards.", "error");
+                }
+            } catch(e) {
+                showToast("Invalid JSON string.", "error");
+            }
+        }
+
+        function resetAllDataToDefault() {
+            cards = [...DEFAULT_CARDS];
+            saveCardsToStorage();
+            closeModal('modal-data');
+            renderApp();
+            showToast("Reset deck to factory demo cards!");
+        }
+
+        function openLightbox(imgSrc) {
+            document.getElementById('lightbox-img').src = imgSrc;
+            document.getElementById('modal-lightbox').classList.remove('hidden');
+            document.getElementById('modal-lightbox').classList.add('flex');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function saveCardsToStorage() {
+            localStorage.setItem(STORAGE_KEY_CARDS, JSON.stringify(cards));
+        }
+
+        function loadCardsFromStorage() {
+            const raw = localStorage.getItem(STORAGE_KEY_CARDS);
+            if (raw) {
+                try {
+                    cards = JSON.parse(raw);
+                } catch(e) {
+                    cards = [...DEFAULT_CARDS];
+                }
+            } else {
+                cards = [...DEFAULT_CARDS];
+            }
+
+            const rawStats = localStorage.getItem(STORAGE_KEY_STATS);
+            if (rawStats) {
+                try {
+                    stats = JSON.parse(rawStats);
+                } catch(e) {}
+            }
+        }
+
+        function showToast(msg, type = "success") {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const message = document.getElementById('toast-message');
+
+            message.innerText = msg;
+            if (type === "error") {
+                icon.className = "fa-solid fa-circle-xmark text-red-400 text-lg";
+            } else {
+                icon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        function escapeQuotes(str) {
+            if (!str) return '';
+            return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        // Hardware Keyboard Navigation listener (Space, 1-4, Esc)
+        document.addEventListener('keydown', function(e) {
+            // Ignore keybindings if user typing in input or textarea
+            const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+            if (activeTag === 'input' || activeTag === 'textarea') {
+                if (e.key === 'Escape') {
+                    document.activeElement.blur();
+                }
+                return;
+            }
+
+            if (e.key === 'Escape') {
+                closeModal('modal-search');
+                closeModal('modal-vacation');
+                closeModal('modal-card-editor');
+                closeModal('modal-data');
+                closeModal('modal-lightbox');
+            } else if (e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                if (!isAnswerRevealed) revealAnswer();
+            } else if (e.key === '1') {
+                if (isAnswerRevealed) rateCard(1);
+            } else if (e.key === '2') {
+                if (isAnswerRevealed) rateCard(2);
+            } else if (e.key === '3') {
+                if (isAnswerRevealed) rateCard(3);
+            } else if (e.key === '4') {
+                if (isAnswerRevealed) rateCard(4);
+            }
+        });
+
+        // Initialize App on DOM Load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCardsFromStorage();
+            renderApp();
+        });
+    </script>
 </body>
 </html>
