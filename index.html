@@ -1,455 +1,564 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Learning App v1.2.0</title>
-    <style>
-        :root {
-            --bg-primary: #0F172A;
-            --bg-secondary: #1E293B;
-            --bg-card: #334155;
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --accent-gold: #D97706;
-            --accent-blue: #3B82F6;
-            --success: #10B981;
-            --danger: #EF4444;
-            --border: #475569;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini Learning App v2.0</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-inner: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --accent-color: #f59e0b; /* Default accent color */
+      --accent-glow: rgba(245, 158, 11, 0.2);
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
-        .container {
-            max-width: 900px;
-            width: 100%;
-        }
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      padding: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
 
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
 
-        h1 {
-            color: var(--accent-gold);
-            margin-bottom: 5px;
-        }
+    header h1 {
+      color: var(--accent-color);
+      font-size: 2rem;
+      margin-bottom: 6px;
+      transition: color 0.3s ease;
+    }
 
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
+    header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
 
-        .leitner-boxes {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+    /* Bookshelf Section */
+    .bookshelf-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
 
-        .box {
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-        }
+    .bookshelf-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
 
-        .box-title {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
+    .bookshelf-grid {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
 
-        .box-count {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: var(--accent-gold);
-        }
+    .book-cover-card {
+      flex: 0 0 110px;
+      height: 160px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      background: var(--bg-inner);
+      cursor: pointer;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
 
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            background-color: var(--bg-secondary);
-            padding: 10px 15px;
-            border-radius: 8px;
-            gap: 10px;
-        }
+    .book-cover-card:hover {
+      transform: translateY(-4px);
+    }
 
-        select {
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-        }
+    .book-cover-card.active {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
 
-        .btn {
-            background-color: var(--accent-blue);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+    .book-cover-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 4px;
+    }
 
-        .btn-gold {
-            background-color: var(--accent-gold);
-        }
+    .book-cover-fallback {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: var(--text-main);
+    }
 
-        .btn-danger {
-            background-color: var(--danger);
-        }
+    /* Leitner Boxes Bar */
+    .leitner-bar {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
 
-        .card-container {
-            background-color: var(--bg-secondary);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 30px;
-            min-height: 250px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
+    .box-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-        }
+    .box-card .box-label { font-size: 0.7rem; color: var(--text-muted); font-weight: bold; }
+    .box-card .box-count { font-size: 1.4rem; font-weight: bold; color: var(--accent-color); }
 
-        .card-prompt {
-            font-size: 1.25rem;
-            font-weight: 600;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
+    /* Control Bar */
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
 
-        .feynman-box {
-            background-color: var(--bg-primary);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
+    select, button {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
 
-        textarea {
-            width: 100%;
-            height: 80px;
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            font-size: 1rem;
-            resize: vertical;
-            outline: none;
-        }
+    button.btn-primary { background: var(--accent-color); color: #000; font-weight: bold; border: none; }
+    button.btn-success { background: #10b981; color: #fff; border: none; }
+    button.btn-danger { background: #ef4444; color: #fff; border: none; }
 
-        .answer-box {
-            background-color: var(--bg-card);
-            border-left: 4px solid var(--accent-gold);
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 15px;
-            display: none;
-        }
+    /* Study Technique Tabs */
+    .technique-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-card);
+      padding: 4px;
+      border-radius: 8px 8px 0 0;
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+    }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
-        }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 600;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
 
-        .modal-content {
-            background-color: var(--bg-secondary);
-            padding: 25px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-        }
+    .tab-btn.active {
+      background: var(--accent-color);
+      color: #000;
+    }
 
-        textarea.bulk-input {
-            width: 100%;
-            height: 200px;
-            background-color: var(--bg-primary);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 10px;
-            border-radius: 6px;
-            font-family: monospace;
-            box-sizing: border-box;
-        }
-    </style>
+    /* Main Card Display */
+    .card-container {
+      background: var(--bg-card);
+      border: 2px solid var(--accent-color);
+      border-radius: 0 0 12px 12px;
+      padding: 24px;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 20px var(--accent-glow);
+      transition: border-color 0.3s ease;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .card-prompt {
+      font-size: 1.2rem;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    /* Study Mode Content Panels */
+    .mode-panel { margin-bottom: 20px; }
+
+    textarea {
+      width: 100%;
+      height: 110px;
+      background: var(--bg-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      padding: 12px;
+      font-size: 0.95rem;
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+
+    .model-answer-box {
+      background: var(--bg-inner);
+      border-left: 4px solid var(--accent-color);
+      padding: 14px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+
+    .cloze-blank {
+      background: var(--accent-color);
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    /* Action Buttons */
+    .card-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .card-actions button { flex: 1; padding: 12px; }
+
+    .hidden { display: none !important; }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Gemini Learning App</h1>
-        <div class="subtitle">Multi-Book Reader • Feynman Learning & Spaced Repetition Engine</div>
-    </header>
+  <header>
+    <h1 id="app-title">Gemini Learning App</h1>
+    <p>Multi-Book Reader • Spaced Repetition & Multi-Technique Engine</p>
+  </header>
 
-    <div class="leitner-boxes">
-        <div class="box"><div class="box-title">Box 1</div><div class="box-count" id="b1-count">0</div></div>
-        <div class="box"><div class="box-title">Box 2</div><div class="box-count" id="b2-count">0</div></div>
-        <div class="box"><div class="box-title">Box 3</div><div class="box-count" id="b3-count">0</div></div>
-        <div class="box"><div class="box-title">Box 4</div><div class="box-count" id="b4-count">0</div></div>
-        <div class="box"><div class="box-title">Box 5</div><div class="box-count" id="b5-count">0</div></div>
-        <div class="box"><div class="box-title">Re-Study</div><div class="box-count" id="b0-count">0</div></div>
+  <!-- Bookshelf Section -->
+  <div class="bookshelf-wrapper">
+    <div class="bookshelf-title">Your Bookshelf</div>
+    <div class="bookshelf-grid" id="bookshelf">
+      <!-- Book covers dynamically injected here -->
+    </div>
+  </div>
+
+  <!-- Leitner Box Progress -->
+  <div class="leitner-bar">
+    <div class="box-card"><div class="box-label">BOX 1</div><div class="box-count" id="b1-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 2</div><div class="box-count" id="b2-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 3</div><div class="box-count" id="b3-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 4</div><div class="box-count" id="b4-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 5</div><div class="box-count" id="b5-count">0</div></div>
+    <div class="box-card"><div class="box-label">RE-STUDY</div><div class="box-count" id="br-count">0</div></div>
+  </div>
+
+  <!-- Filter & System Controls -->
+  <div class="controls-bar">
+    <select id="book-select" onchange="filterByBook(this.value)">
+      <option value="ALL">All Books Combined (Encompassing Study)</option>
+    </select>
+    <div>
+      <button class="btn-primary" onclick="triggerImport()">+ Bulk Import</button>
+      <button onclick="exportData()">Export</button>
+      <button onclick="resetApp()">Reset</button>
+      <input type="file" id="file-input" class="hidden" accept=".json" onchange="importJSON(event)">
+    </div>
+  </div>
+
+  <!-- Study Mode Selector Tabs -->
+  <div class="technique-tabs">
+    <button class="tab-btn active" id="tab-feynman" onclick="setMode('feynman')">Feynman Technique</button>
+    <button class="tab-btn" id="tab-cloze" onclick="setMode('cloze')">Cloze Technique</button>
+    <button class="tab-btn" id="tab-standard" onclick="setMode('standard')">Standard Q&A</button>
+  </div>
+
+  <!-- Active Flashcard Display -->
+  <div class="card-container" id="card-display">
+    <div>
+      <div class="card-meta">
+        <span id="card-book-title">BOOK TITLE</span>
+        <span id="card-box-label">LEITNER BOX 1</span>
+      </div>
+      <div class="card-prompt" id="card-prompt">No cards loaded. Please click "+ Bulk Import" to add JSON flashcards.</div>
+
+      <!-- Mode 1: Feynman Technique -->
+      <div id="mode-feynman-panel" class="mode-panel">
+        <textarea id="feynman-input" placeholder="Step 1: Teach / Explain this concept in simple terms as if explaining to someone else..."></textarea>
+        <button onclick="toggleAnswer()" style="width:100%;">Compare with Model Answer</button>
+      </div>
+
+      <!-- Mode 2: Cloze Technique -->
+      <div id="mode-cloze-panel" class="mode-panel hidden">
+        <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:10px;">Fill in the target phrase mentally, then reveal:</p>
+        <button onclick="toggleAnswer()" style="width:100%;">Reveal Blank Target</button>
+      </div>
+
+      <!-- Mode 3: Standard Q&A -->
+      <div id="mode-standard-panel" class="mode-panel hidden">
+        <button onclick="toggleAnswer()" style="width:100%;">Show Answer</button>
+      </div>
+
+      <!-- Shared Model Answer Output -->
+      <div id="model-answer" class="model-answer-box hidden"></div>
     </div>
 
-    <div class="controls">
-        <select id="bookFilter" onchange="filterBook()">
-            <option value="All">All Books Combined (Encompassing Study)</option>
-        </select>
-        <div>
-            <button class="btn btn-gold" onclick="openBulkModal()">+ Bulk Import</button>
-            <button class="btn" onclick="exportData()">Export</button>
-            <button class="btn btn-danger" onclick="resetApp()">Reset</button>
-        </div>
+    <!-- Review Rating Buttons -->
+    <div class="card-actions">
+      <button class="btn-success" onclick="rateCard(true)">Got It Right</button>
+      <button class="btn-danger" onclick="rateCard(false)">Needs Review</button>
     </div>
+  </div>
 
-    <div class="card-container" id="cardContainer">
-        <div>
-            <div class="card-header">
-                <span id="cardBook">Book Title</span>
-                <span id="cardBox">Leitner Box 1</span>
-            </div>
-            <div class="card-prompt" id="cardPrompt">Load or import flashcards to begin learning.</div>
-        </div>
+  <script>
+    // Distinct theme color palettes per book
+    const BOOK_PALETTES = {
+      "Les Misérables": { accent: "#e11d48", glow: "rgba(225, 29, 72, 0.25)" },
+      "The Count of Monte Cristo": { accent: "#2563eb", glow: "rgba(37, 99, 235, 0.25)" },
+      "DEFAULT": { accent: "#f59e0b", glow: "rgba(245, 158, 11, 0.25)" }
+    };
 
-        <div class="feynman-box">
-            <div style="font-size: 0.8rem; color: var(--accent-gold); margin-bottom: 5px;">Step 1: Teach / Explain Plainly</div>
-            <textarea id="feynmanInput" placeholder="Explain this concept in simple words as if teaching someone else..."></textarea>
-        </div>
-
-        <div class="answer-box" id="answerBox">
-            <div style="font-weight: bold; color: var(--accent-gold); margin-bottom: 5px;">Model Answer / Key Fact:</div>
-            <div id="cardAnswer">Answer content will appear here.</div>
-        </div>
-
-        <div style="margin-top: 20px; display: flex; gap: 10px;">
-            <button class="btn btn-gold" style="flex: 1;" onclick="toggleAnswer()">Compare with Model Answer</button>
-            <button class="btn" style="background-color: var(--success);" onclick="rateCard(true)">Got It Right</button>
-            <button class="btn btn-danger" onclick="rateCard(false)">Needs Review</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="bulkModal">
-    <div class="modal-content">
-        <h2>Bulk Import Cards</h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">Paste JSON array or Pipe-separated text (Prompt | Answer | Book).</p>
-        <textarea class="bulk-input" id="bulkJsonInput" placeholder="Question | Answer | Book Title&#10;or JSON format"></textarea>
-        <div style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px;">
-            <button class="btn" onclick="closeBulkModal()">Cancel</button>
-            <button class="btn btn-gold" onclick="processBulkImport()">Import Cards</button>
-        </div>
-    </div>
-</div>
-<script>
-    let cards = JSON.parse(localStorage.getItem('gemini_cards')) || [];
-    let currentFilteredCards = [];
+    let cards = [];
+    let filteredCards = [];
     let currentIndex = 0;
+    let currentMode = 'feynman';
+    let currentBookFilter = 'ALL';
 
-    function saveCards() {
-        localStorage.setItem('gemini_cards', JSON.stringify(cards));
-        updateBookDropdown();
-        updateBoxCounts();
+    // App Initialization
+    window.onload = function() {
+      const saved = localStorage.getItem('gemini_flashcards');
+      if (saved) {
+        cards = JSON.parse(saved);
+        updateBookshelf();
+        populateBookSelect();
+        applyFilter();
+      }
+    };
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${mode}`).classList.add('active');
+
+      document.getElementById('mode-feynman-panel').classList.add('hidden');
+      document.getElementById('mode-cloze-panel').classList.add('hidden');
+      document.getElementById('mode-standard-panel').classList.add('hidden');
+      document.getElementById(`mode-${mode}-panel`).classList.remove('hidden');
+
+      document.getElementById('model-answer').classList.add('hidden');
+      renderCard();
     }
 
-    function updateBookDropdown() {
-        const select = document.getElementById('bookFilter');
-        const currentValue = select.value;
-        const books = [...new Set(cards.map(c => c.book || "Uncategorized"))];
-        
-        select.innerHTML = '<option value="All">All Books Combined (Encompassing Study)</option>';
-        books.forEach(book => {
-            const opt = document.createElement('option');
-            opt.value = book;
-            opt.textContent = book;
-            select.appendChild(opt);
-        });
-        
-        if (books.includes(currentValue) || currentValue === 'All') {
-            select.value = currentValue;
-        }
+    function applyBookPalette(bookTitle) {
+      const palette = BOOK_PALETTES[bookTitle] || BOOK_PALETTES["DEFAULT"];
+      document.documentElement.style.setProperty('--accent-color', palette.accent);
+      document.documentElement.style.setProperty('--accent-glow', palette.glow);
     }
 
-    function filterBook() {
-        const selected = document.getElementById('bookFilter').value;
-        if (selected === 'All') {
-            currentFilteredCards = cards;
+    function updateBookshelf() {
+      const shelf = document.getElementById('bookshelf');
+      shelf.innerHTML = '';
+
+      // Add "All Books" tile
+      const allTile = document.createElement('div');
+      allTile.className = `book-cover-card ${currentBookFilter === 'ALL' ? 'active' : ''}`;
+      allTile.onclick = () => filterByBook('ALL');
+      allTile.innerHTML = `<div class="book-cover-fallback">ALL BOOKS</div>`;
+      shelf.appendChild(allTile);
+
+      // Unique books map
+      const bookMap = {};
+      cards.forEach(c => {
+        if (!bookMap[c.book]) bookMap[c.book] = c.coverImage;
+      });
+
+      Object.keys(bookMap).forEach(bookTitle => {
+        const coverUrl = bookMap[bookTitle];
+        const cardTile = document.createElement('div');
+        cardTile.className = `book-cover-card ${currentBookFilter === bookTitle ? 'active' : ''}`;
+        cardTile.onclick = () => filterByBook(bookTitle);
+
+        if (coverUrl) {
+          cardTile.innerHTML = `<img src="${coverUrl}" alt="${bookTitle}" onerror="this.outerHTML='<div class=\\'book-cover-fallback\\'>${bookTitle}</div>'">`;
         } else {
-            currentFilteredCards = cards.filter(c => (c.book || "Uncategorized") === selected);
+          cardTile.innerHTML = `<div class="book-cover-fallback">${bookTitle}</div>`;
         }
-        currentIndex = 0;
-        updateBoxCounts();
-        renderCard();
+        shelf.appendChild(cardTile);
+      });
     }
 
-    function updateBoxCounts() {
-        const counts = {0:0, 1:0, 2:0, 3:0, 4:0, 5:0};
-        const targetList = currentFilteredCards.length > 0 || document.getElementById('bookFilter').value !== 'All' ? currentFilteredCards : cards;
-        
-        targetList.forEach(c => {
-            const b = c.box || 1;
-            counts[b] = (counts[b] || 0) + 1;
-        });
-        
-        document.getElementById('b0-count').innerText = counts[0] || 0;
-        document.getElementById('b1-count').innerText = counts[1] || 0;
-        document.getElementById('b2-count').innerText = counts[2] || 0;
-        document.getElementById('b3-count').innerText = counts[3] || 0;
-        document.getElementById('b4-count').innerText = counts[4] || 0;
-        document.getElementById('b5-count').innerText = counts[5] || 0;
+    function populateBookSelect() {
+      const select = document.getElementById('book-select');
+      select.innerHTML = '<option value="ALL">All Books Combined (Encompassing Study)</option>';
+      const books = [...new Set(cards.map(c => c.book))];
+      books.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = b;
+        select.appendChild(opt);
+      });
+      select.value = currentBookFilter;
+    }
+
+    function filterByBook(bookTitle) {
+      currentBookFilter = bookTitle;
+      document.getElementById('book-select').value = bookTitle;
+      applyBookPalette(bookTitle === 'ALL' ? 'DEFAULT' : bookTitle);
+      updateBookshelf();
+      applyFilter();
+    }
+
+    function applyFilter() {
+      if (currentBookFilter === 'ALL') {
+        filteredCards = [...cards];
+      } else {
+        filteredCards = cards.filter(c => c.book === currentBookFilter);
+      }
+      currentIndex = 0;
+      updateBoxCounts();
+      renderCard();
     }
 
     function renderCard() {
-        const targetList = currentFilteredCards;
-        
-        if (!targetList || targetList.length === 0) {
-            document.getElementById('cardBook').innerText = "No Cards";
-            document.getElementById('cardBox').innerText = "";
-            document.getElementById('cardPrompt').innerText = "No flashcards found for this selection. Click '+ Bulk Import' to add cards.";
-            document.getElementById('cardAnswer').innerText = "";
-            return;
-        }
+      if (filteredCards.length === 0) {
+        document.getElementById('card-prompt').textContent = "No cards available for this selection.";
+        document.getElementById('card-book-title').textContent = "N/A";
+        document.getElementById('model-answer').classList.add('hidden');
+        return;
+      }
 
-        if (currentIndex >= targetList.length) currentIndex = 0;
+      const card = filteredCards[currentIndex];
+      document.getElementById('card-book-title').textContent = card.book.toUpperCase();
+      document.getElementById('card-box-label').textContent = `LEITNER BOX ${card.box || 1}`;
+      document.getElementById('feynman-input').value = '';
+      document.getElementById('model-answer').classList.add('hidden');
 
-        const card = targetList[currentIndex];
-        document.getElementById('cardBook').innerText = card.book || "General";
-        document.getElementById('cardBox').innerText = "Leitner Box " + (card.box || 1);
-        document.getElementById('cardPrompt').innerText = card.prompt;
-        document.getElementById('cardAnswer').innerText = card.answer;
-        document.getElementById('feynmanInput').value = "";
-        document.getElementById('answerBox').style.display = "none";
+      if (currentMode === 'cloze' && card.clozeTarget) {
+        const clozePrompt = card.answer.replace(
+          new RegExp(card.clozeTarget, 'gi'),
+          `<span class="cloze-blank">[ ${card.clozeTarget.length} letters ]</span>`
+        );
+        document.getElementById('card-prompt').innerHTML = `<strong>Context:</strong> ${card.prompt}<br><br><strong>Fill Blank:</strong> ${clozePrompt}`;
+      } else {
+        document.getElementById('card-prompt').textContent = card.prompt;
+      }
+
+      applyBookPalette(card.book);
     }
 
     function toggleAnswer() {
-        const ab = document.getElementById('answerBox');
-        ab.style.display = ab.style.display === "none" ? "block" : "none";
+      const card = filteredCards[currentIndex];
+      if (!card) return;
+
+      const ansBox = document.getElementById('model-answer');
+      if (currentMode === 'cloze' && card.clozeTarget) {
+        ansBox.innerHTML = `<strong>Target Answer:</strong> <span style="color:var(--accent-color); font-weight:bold;">${card.clozeTarget}</span><br><br><strong>Full Text:</strong> ${card.answer}`;
+      } else {
+        ansBox.innerHTML = `<strong>Model Answer:</strong> ${card.answer}`;
+      }
+      ansBox.classList.toggle('hidden');
     }
 
     function rateCard(success) {
-        if (currentFilteredCards.length === 0) return;
-        let card = currentFilteredCards[currentIndex];
-        if (!card.box) card.box = 1;
+      if (filteredCards.length === 0) return;
+      const card = filteredCards[currentIndex];
+      if (!card.box) card.box = 1;
 
-        if (success) {
-            if (card.box < 5) card.box += 1;
-        } else {
-            card.box = 1;
+      if (success) {
+        card.box = Math.min(5, card.box + 1);
+      } else {
+        card.box = 1;
+      }
+
+      saveData();
+      updateBoxCounts();
+      currentIndex = (currentIndex + 1) % filteredCards.length;
+      renderCard();
+    }
+
+    function updateBoxCounts() {
+      const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, R: 0 };
+      cards.forEach(c => {
+        const b = c.box || 1;
+        counts[b] = (counts[b] || 0) + 1;
+      });
+      document.getElementById('b1-count').textContent = counts[1];
+      document.getElementById('b2-count').textContent = counts[2];
+      document.getElementById('b3-count').textContent = counts[3];
+      document.getElementById('b4-count').textContent = counts[4];
+      document.getElementById('b5-count').textContent = counts[5];
+      document.getElementById('br-count').textContent = counts['R'] || 0;
+    }
+
+    function triggerImport() { document.getElementById('file-input').click(); }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          cards = Array.isArray(imported) ? imported : [imported];
+          saveData();
+          updateBookshelf();
+          populateBookSelect();
+          applyFilter();
+        } catch (err) {
+          alert("Invalid JSON file format.");
         }
-
-        saveCards();
-        filterBook();
-        currentIndex = (currentIndex + 1) % currentFilteredCards.length;
-        renderCard();
+      };
+      reader.readAsText(file);
     }
 
-    function openBulkModal() {
-        document.getElementById('bulkModal').style.display = "flex";
-    }
-
-    function closeBulkModal() {
-        document.getElementById('bulkModal').style.display = "none";
-    }
-
-    function processBulkImport() {
-        const input = document.getElementById('bulkJsonInput').value.trim();
-        let addedCount = 0;
-
-        if (input.startsWith('[')) {
-            try {
-                const parsed = JSON.parse(input);
-                if (Array.isArray(parsed)) {
-                    parsed.forEach(c => {
-                        if (c.prompt && c.answer) {
-                            cards.push({
-                                book: c.book || "Les Misérables",
-                                prompt: c.prompt,
-                                answer: c.answer,
-                                box: 1
-                            });
-                            addedCount++;
-                        }
-                    });
-                }
-            } catch (e) {
-                alert("Invalid JSON format.");
-                return;
-            }
-        } else {
-            const lines = input.split('\n');
-            lines.forEach(line => {
-                const parts = line.split('|').map(p => p.trim());
-                if (parts.length >= 2 && parts[0] && parts[1]) {
-                    cards.push({
-                        prompt: parts[0],
-                        answer: parts[1],
-                        book: parts[2] || "Les Misérables",
-                        box: 1
-                    });
-                    addedCount++;
-                }
-            });
-        }
-
-        if (addedCount > 0) {
-            saveCards();
-            filterBook();
-            closeBulkModal();
-            document.getElementById('bulkJsonInput').value = "";
-            alert(`Successfully imported ${addedCount} cards!`);
-        } else {
-            alert("No valid cards found to import.");
-        }
-    }
+    function saveData() { localStorage.setItem('gemini_flashcards', JSON.stringify(cards)); }
 
     function exportData() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards, null, 2));
-        const dlAnchorElem = document.createElement('a');
-        dlAnchorElem.setAttribute("href", dataStr);
-        dlAnchorElem.setAttribute("download", "flashcards_backup.json");
-        dlAnchorElem.click();
+      const blob = new Blob([JSON.stringify(cards, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "flashcards_backup.json";
+      a.click();
     }
 
     function resetApp() {
-        if (confirm("Are you sure you want to clear all cards?")) {
-            cards = [];
-            saveCards();
-            filterBook();
-        }
+      if (confirm("Reset all stored cards and progress?")) {
+        localStorage.removeItem('gemini_flashcards');
+        cards = [];
+        filteredCards = [];
+        updateBookshelf();
+        populateBookSelect();
+        applyFilter();
+      }
     }
-
-    // Initialize
-    saveCards();
-    filterBook();
-</script>
+  </script>
 </body>
 </html>
