@@ -8,7 +8,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     /* --- RESET & BASE STYLES --- */
@@ -31,7 +31,7 @@
 
     /* --- APP HEADER --- */
     .app-header {
-      background: rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.95);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid #1e293b;
@@ -120,10 +120,11 @@
     }
 
     .section-headline {
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 800;
       color: #ffffff;
       letter-spacing: -0.02em;
+      text-transform: uppercase;
     }
 
     .pill-filter-btn {
@@ -143,7 +144,7 @@
       color: #ffffff;
     }
 
-    /* --- BOOKSHELF GRID (SIDE-BY-SIDE FIX) --- */
+    /* --- BOOKSHELF GRID (SIDE-BY-SIDE LAYOUT FIX) --- */
     .bookshelf-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -153,9 +154,9 @@
       align-items: stretch;
     }
 
-    /* --- ORIGINAL BOOK CARD TEMPLATE --- */
+    /* --- BOOK CARD TEMPLATE --- */
     .book-card {
-      position: relative !important; /* Forces document flow side-by-side */
+      position: relative !important; /* Prevents overlap */
       background: #131e32;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
@@ -524,7 +525,8 @@
         <button class="btn" onclick="openSearchModal()">🔍 Search</button>
         <button class="btn btn-warning" onclick="openVacationModal()">🌴 Vacation</button>
         <button class="btn" onclick="exportData()">💾 Export JSON</button>
-        <button class="btn btn-primary" onclick="openImportModal()">📥 Import JSON</button>
+        <!-- Clicking Import opens the text box modal directly -->
+        <button class="btn btn-primary" onclick="openImportModal()">📥 Import</button>
         <button class="btn" onclick="openCardEditorModal()">+ New Card</button>
       </div>
     </div>
@@ -536,10 +538,10 @@
     <section>
       <div class="bookshelf-header-row">
         <h1 class="section-headline">Interactive Bookshelf</h1>
-        <button id="btnAllLiterature" class="pill-filter-btn active" onclick="selectDeck('ALL')">All Literature</button>
+        <button id="btnAllLiterature" class="pill-filter-btn active" onclick="selectDeck('ALL')">All Literature Decks Combined</button>
       </div>
 
-      <!-- BOOKSHELF GRID CONTAINER (EXPANDS SIDE-BY-SIDE) -->
+      <!-- BOOKSHELF GRID CONTAINER (SIDE-BY-SIDE CARDS) -->
       <div id="bookshelf" class="bookshelf-grid">
         <!-- Rendered dynamically -->
       </div>
@@ -548,8 +550,8 @@
     <!-- QUEUE METRICS PANEL -->
     <section class="queue-panel">
       <div>
-        <div style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Active Filter</div>
-        <div id="activeDeckLabel" style="font-size: 1.1rem; font-weight: 700; color: #6366f1;">All Literature</div>
+        <div style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Active Deck Filter</div>
+        <div id="activeDeckLabel" style="font-size: 1.1rem; font-weight: 700; color: #6366f1;">All Literature Decks Combined</div>
       </div>
 
       <div class="box-counters">
@@ -607,19 +609,17 @@
 
   </main>
 
-  <!-- IMPORT JSON MODAL (PASTE TEXT OR UPLOAD FILE) -->
+  <!-- DIRECT PASTE & UPLOAD JSON MODAL -->
   <div class="modal-overlay" id="importModal">
     <div class="modal-card">
       <div class="modal-header">
-        <div style="font-weight: 700; font-size: 1.1rem;">Import Flashcard JSON</div>
+        <div style="font-weight: 700; font-size: 1.1rem;">Import JSON Data</div>
         <button class="btn" style="padding:0.2rem 0.5rem;" onclick="closeImportModal()">✕</button>
       </div>
 
-      <!-- Option 1: Direct JSON Paste Input -->
       <div class="form-group">
-        <label style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Paste JSON Content directly:</label>
-        <textarea id="jsonPasteInput" class="form-control" rows="8" placeholder='Paste JSON array here, e.g.:
-[
+        <label style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Paste JSON file content into the box below:</label>
+        <textarea id="jsonPasteInput" class="form-control" rows="10" placeholder='[
   {
     "book": "The Count of Monte Cristo",
     "coverImage": "The count of monte cristo.jpeg",
@@ -627,15 +627,11 @@
     "answer": "An Italian priest and fellow prisoner in the Château d’If who becomes Edmond Dantès’ mentor."
   }
 ]'></textarea>
-        <button class="btn btn-primary" style="margin-top: 0.5rem; justify-content: center;" onclick="handleJsonPasteImport()">Load Pasted JSON Data</button>
       </div>
 
-      <div style="text-align: center; color: #64748b; font-size: 0.8rem; margin: 1rem 0;">— OR CHOOSE FILE —</div>
-
-      <!-- Option 2: File Upload Picker -->
-      <div class="form-group">
-        <label style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Upload .json File:</label>
-        <input type="file" id="jsonFileInput" class="form-control" accept=".json" onchange="handleFileInputImport(event)">
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+        <button class="btn" onclick="closeImportModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="handleUploadJsonClick()">Upload JSON File</button>
       </div>
     </div>
   </div>
@@ -682,15 +678,15 @@
         <input type="hidden" id="editCardId">
         <div class="form-group">
           <label>Book Title</label>
-          <input type="text" id="editBook" class="form-control" required placeholder="Les Misérables">
+          <input type="text" id="editBook" class="form-control" required placeholder="The Count of Monte Cristo">
         </div>
         <div class="form-group">
           <label>Cover Image Filename / URL</label>
-          <input type="text" id="editCoverImage" class="form-control" placeholder="les-miserables.jpg">
+          <input type="text" id="editCoverImage" class="form-control" placeholder="The count of monte cristo.jpeg">
         </div>
         <div class="form-group">
           <label>Top Accent Color (Hex)</label>
-          <input type="color" id="editPastelColor" class="form-control" value="#fef3c7" style="height:40px; padding:2px;">
+          <input type="color" id="editPastelColor" class="form-control" value="#fde047" style="height:40px; padding:2px;">
         </div>
         <div class="form-group">
           <label>Prompt / Question</label>
@@ -716,18 +712,8 @@
   </div>
 
   <script>
-    /* --- INITIAL STARTER DATA --- */
+    /* --- INITIAL STARTER DECKS (COUNT OF MONTE CRISTO & LES MISÉRABLES) --- */
     const DEFAULT_DECKS = [
-      {
-        id: "lm-001",
-        book: "Les Misérables",
-        coverImage: "les-miserables.jpg",
-        prompt: "Who wrote Les Misérables, and who produced the 2013 Penguin Classics translation?",
-        answer: "Victor Hugo wrote Les Misérables, translated by Christine Donougher in the 2013 Penguin edition.",
-        clozeTarget: "Christine Donougher",
-        pastelColor: "#fef3c7",
-        interval: 1, repetition: 0, easeFactor: 2.5, dueDate: new Date().toISOString(), box: 1
-      },
       {
         id: "cmc-001",
         book: "The Count of Monte Cristo",
@@ -736,6 +722,16 @@
         answer: "Robin Buss translated the celebrated uncensored 1996 edition.",
         clozeTarget: "Robin Buss",
         pastelColor: "#fde047",
+        interval: 1, repetition: 0, easeFactor: 2.5, dueDate: new Date().toISOString(), box: 1
+      },
+      {
+        id: "lm-001",
+        book: "Les Misérables",
+        coverImage: "les-miserables.jpg",
+        prompt: "Who wrote Les Misérables, and who produced the 2013 Penguin Classics translation?",
+        answer: "Victor Hugo wrote Les Misérables, translated by Christine Donougher in the 2013 Penguin edition.",
+        clozeTarget: "Christine Donougher",
+        pastelColor: "#fef3c7",
         interval: 1, repetition: 0, easeFactor: 2.5, dueDate: new Date().toISOString(), box: 1
       }
     ];
@@ -795,7 +791,7 @@
       updateHeaderStats();
     }
 
-    /* --- RENDER ORIGINAL BOOKSHELF DESIGN IN EXPANDABLE GRID --- */
+    /* --- RENDER SIDE-BY-SIDE BOOKSHELF DECK CARDS --- */
     function renderBookshelf() {
       const bookshelfEl = document.getElementById('bookshelf');
       bookshelfEl.innerHTML = '';
@@ -806,7 +802,7 @@
           bookMap[c.book] = {
             title: c.book,
             coverImage: c.coverImage || '',
-            pastelColor: c.pastelColor || '#fef3c7',
+            pastelColor: c.pastelColor || '#fde047',
             total: 0,
             due: 0,
             mastered: 0
@@ -854,7 +850,6 @@
         bookshelfEl.appendChild(card);
       });
 
-      // Update "All Literature" button highlight
       document.getElementById('btnAllLiterature').classList.toggle('active', activeDeckFilter === 'ALL');
     }
 
@@ -862,7 +857,7 @@
 
     function selectDeck(bookTitle) {
       activeDeckFilter = bookTitle;
-      document.getElementById('activeDeckLabel').innerText = bookTitle === 'ALL' ? 'All Literature' : bookTitle;
+      document.getElementById('activeDeckLabel').innerText = bookTitle === 'ALL' ? 'All Literature Decks Combined' : bookTitle;
       renderBookshelf();
       buildStudyQueue();
     }
@@ -919,7 +914,7 @@
 
       const bookPill = document.getElementById('cardBookTitle');
       bookPill.innerText = activeCard.book;
-      bookPill.style.background = activeCard.pastelColor || '#fef3c7';
+      bookPill.style.background = activeCard.pastelColor || '#fde047';
 
       document.getElementById('cardIntervalBadge').innerText = `Interval: ${activeCard.interval || 1}d (Box ${activeCard.box || 1})`;
 
@@ -999,13 +994,22 @@
       buildStudyQueue();
     }
 
-    /* --- JSON IMPORT HANDLERS (TEXTAREA PASTE & FILE) --- */
-    function openImportModal() { document.getElementById('importModal').classList.add('active'); }
-    function closeImportModal() { document.getElementById('importModal').classList.remove('active'); }
+    /* --- IMPORT MODAL & PASTE HANDLER --- */
+    function openImportModal() {
+      document.getElementById('importModal').classList.add('active');
+      document.getElementById('jsonPasteInput').focus();
+    }
 
-    function handleJsonPasteImport() {
+    function closeImportModal() {
+      document.getElementById('importModal').classList.remove('active');
+    }
+
+    function handleUploadJsonClick() {
       const pasteVal = document.getElementById('jsonPasteInput').value.trim();
-      if (!pasteVal) { alert('Please paste JSON data into the text box first.'); return; }
+      if (!pasteVal) {
+        alert('Please paste your JSON text into the box before clicking Upload.');
+        return;
+      }
 
       try {
         const parsed = JSON.parse(pasteVal);
@@ -1013,25 +1017,8 @@
         document.getElementById('jsonPasteInput').value = '';
         closeImportModal();
       } catch(e) {
-        alert('Invalid JSON format: ' + e.message);
+        alert('JSON Format Error: ' + e.message);
       }
-    }
-
-    function handleFileInputImport(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        try {
-          const parsed = JSON.parse(evt.target.result);
-          processImportedArray(parsed);
-          closeImportModal();
-        } catch(err) {
-          alert('Error parsing uploaded JSON file.');
-        }
-      };
-      reader.readAsText(file);
     }
 
     function processImportedArray(items) {
@@ -1044,7 +1031,7 @@
             id: item.id || 'imported_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
             book: item.book || 'Imported Collection',
             coverImage: item.coverImage || '',
-            pastelColor: item.pastelColor || '#fef3c7',
+            pastelColor: item.pastelColor || '#fde047',
             prompt: item.prompt,
             answer: item.answer,
             clozeTarget: item.clozeTarget || '',
@@ -1062,7 +1049,7 @@
       saveStateToStorage();
       renderBookshelf();
       buildStudyQueue();
-      alert(`Successfully loaded ${added} flashcards into your studio!`);
+      alert(`Successfully added ${added} card(s) to your bookshelf!`);
     }
 
     /* --- EXPORT DATA --- */
@@ -1129,7 +1116,7 @@
         document.getElementById('editCardId').value = c.id;
         document.getElementById('editBook').value = c.book;
         document.getElementById('editCoverImage').value = c.coverImage || '';
-        document.getElementById('editPastelColor').value = c.pastelColor || '#fef3c7';
+        document.getElementById('editPastelColor').value = c.pastelColor || '#fde047';
         document.getElementById('editPrompt').value = c.prompt;
         document.getElementById('editAnswer').value = c.answer;
         document.getElementById('editClozeTarget').value = c.clozeTarget || '';
