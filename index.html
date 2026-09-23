@@ -2,313 +2,684 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Learning App - Bookshelf & Study Engine</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- iPad PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Learning SRS">
+    <title>Gemini Learning App • Feynman SRS Studio</title>
     <style>
         :root {
-            --primary: #4A90E2;
-            --bg: #121212;
-            --card-bg: #1e1e1e;
-            --text: #ffffff;
-            --text-muted: #b0b0b0;
-            --accent: #27ae60;
-            --border: #333333;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-gold: #d97706;
+            --accent-gold-hover: #b45309;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #475569;
+            --book-theme-color: #d97706;
         }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
             margin: 0;
-            padding: 20px;
-            background-color: var(--bg);
-            color: var(--text);
+            padding: 16px;
+            display: flex;
+            justify-content: center;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-            border: 1px solid var(--border);
+
+        .app-container {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
-        h1, h2 {
-            text-align: center;
-            color: #ffffff;
-            margin-top: 0;
-        }
-        
+
         /* BOOKSHELF HEADER BAR */
         .bookshelf-bar {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 16px;
             overflow-x: auto;
-            padding: 15px;
-            background: #181818;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            margin-bottom: 25px;
         }
+
         .bookshelf-title {
-            font-size: 0.9em;
-            font-weight: bold;
+            font-size: 0.85rem;
+            font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
+            letter-spacing: 0.05em;
             white-space: nowrap;
         }
-        .book-thumbnail {
-            width: 50px;
-            height: 75px;
+
+        .bookshelf-covers {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .book-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 10px 4px 4px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .book-chip.active {
+            border-color: var(--book-theme-color);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .book-chip img {
+            width: 32px;
+            height: 48px;
             object-fit: cover;
             border-radius: 4px;
-            border: 1px solid #444;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .book-chip-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
         }
 
         /* NAVIGATION TABS */
         .nav-tabs {
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .tab-btn {
-            padding: 10px 20px;
+            background-color: var(--bg-secondary);
+            padding: 4px;
+            border-radius: 10px;
             border: 1px solid var(--border);
-            background: #2a2a2a;
-            color: var(--text);
-            border-radius: 6px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            transition: all 0.2s;
         }
+
         .tab-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border-bottom: 2px solid var(--book-theme-color);
         }
+
         .section { display: none; }
-        .section.active { display: block; }
+        .section.active { display: flex; flex-direction: column; gap: 16px; }
 
         /* LEITNER TRACKER */
         .leitner-tracker {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            background-color: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .box-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .box-num {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--book-theme-color);
+        }
+
+        .box-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* MODE SELECTOR */
+        .mode-selector {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .mode-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .mode-btn.active {
+            background: var(--book-theme-color);
+            color: #ffffff;
+            border-color: var(--book-theme-color);
+        }
+
+        /* FLASHCARD CONTAINER */
+        .card-container {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-meta {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 20px;
-            background: #252525;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
         }
-        .box { text-align: center; flex: 1; }
-        .box-num { font-weight: bold; font-size: 1.2em; color: var(--primary); }
 
-        /* STUDY FLASHCARD */
-        .card-display {
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 25px;
-            min-height: 200px;
-            background: #252525;
-            margin-bottom: 20px;
+        .book-badge {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: var(--book-theme-color);
         }
+
         .card-question {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            line-height: 1.4;
+            font-size: 1.15rem;
+            font-weight: 600;
+            line-height: 1.5;
+            color: var(--text-main);
+            margin-bottom: 16px;
         }
+
+        /* FEYNMAN INPUT AREA */
+        .feynman-box {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
         .feynman-input {
             width: 100%;
-            height: 100px;
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 6px;
+            height: 90px;
+            background-color: var(--bg-primary);
             border: 1px solid var(--border);
-            background: #1a1a1a;
-            color: #fff;
+            border-radius: 8px;
+            padding: 10px;
+            color: var(--text-main);
             font-family: inherit;
+            font-size: 0.95rem;
+            resize: none;
             box-sizing: border-box;
-            font-size: 1em;
-        }
-        .model-answer {
-            display: none;
-            background: #1b2e23;
-            border-left: 4px solid var(--accent);
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 4px;
         }
 
-        /* BUTTONS */
-        .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
-        .btn { padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-success { background: var(--accent); color: white; }
-        .btn-danger { background: #e74c3c; color: white; }
-        textarea.bulk-area {
-            width: 100%;
-            height: 200px;
-            font-family: monospace;
-            padding: 10px;
+        .feynman-input:focus {
+            outline: none;
+            border-color: var(--book-theme-color);
+        }
+
+        /* CLOZE AREA */
+        .cloze-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            background: var(--bg-primary);
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid var(--book-theme-color);
+        }
+
+        .cloze-blank {
+            background: var(--border);
+            color: transparent;
+            padding: 2px 8px;
+            border-radius: 4px;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .cloze-blank.revealed {
+            background: transparent;
+            color: var(--book-theme-color);
+            font-weight: 700;
+            text-decoration: underline;
+        }
+
+        /* ANSWER REVEAL BLOCK */
+        .answer-block {
+            display: none;
+            background-color: var(--bg-primary);
+            border-left: 4px solid var(--success);
+            padding: 14px;
             border-radius: 6px;
-            box-sizing: border-box;
-            background: #1a1a1a;
-            color: #fff;
+            margin-top: 16px;
+        }
+
+        .answer-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .answer-text {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--text-main);
+        }
+
+        /* BUTTONS & GRADING CONTROLS */
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover { opacity: 0.9; }
+
+        .btn-theme { background-color: var(--book-theme-color); color: #ffffff; }
+        .btn-again { background-color: var(--danger); color: #ffffff; }
+        .btn-hard { background-color: var(--warning); color: #ffffff; }
+        .btn-good { background-color: #2563eb; color: #ffffff; }
+        .btn-easy { background-color: var(--success); color: #ffffff; }
+
+        /* MANAGE & BULK IMPORT */
+        .bulk-area {
+            width: 100%;
+            height: 220px;
+            background-color: var(--bg-primary);
             border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-main);
+            font-family: monospace;
+            font-size: 0.85rem;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .card-item {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Gemini Learning App</h1>
+<div class="app-container">
 
-    <!-- TOP BOOKSHELF HEADER BAR -->
+    <!-- BOOKSHELF HEADER BAR -->
     <div class="bookshelf-bar">
         <span class="bookshelf-title">Bookshelf:</span>
-        <div id="bookshelf-covers" style="display: flex; gap: 10px;"></div>
+        <div id="bookshelf-covers" class="bookshelf-covers"></div>
     </div>
-    
+
+    <!-- MAIN TAB NAVIGATION -->
     <div class="nav-tabs">
         <button class="tab-btn active" onclick="switchTab('study')">Study Mode</button>
-        <button class="tab-btn" onclick="switchTab('manage')">Manage & Bulk Import</button>
+        <button class="tab-btn" onclick="switchTab('manage')">Manage & Import</button>
     </div>
 
     <!-- STUDY SECTION -->
     <div id="study-section" class="section active">
+
+        <!-- LEITNER TRACKER -->
         <div class="leitner-tracker">
-            <div class="box"><div class="box-num" id="count-box1">0</div>Box 1</div>
-            <div class="box"><div class="box-num" id="count-box2">0</div>Box 2</div>
-            <div class="box"><div class="box-num" id="count-box3">0</div>Box 3</div>
-            <div class="box"><div class="box-num" id="count-box4">0</div>Box 4</div>
-            <div class="box"><div class="box-num" id="count-box5">0</div>Box 5</div>
+            <div class="box-stat"><div class="box-num" id="count-box1">0</div><div class="box-label">Box 1</div></div>
+            <div class="box-stat"><div class="box-num" id="count-box2">0</div><div class="box-label">Box 2</div></div>
+            <div class="box-stat"><div class="box-num" id="count-box3">0</div><div class="box-label">Box 3</div></div>
+            <div class="box-stat"><div class="box-num" id="count-box4">0</div><div class="box-label">Box 4</div></div>
+            <div class="box-stat"><div class="box-num" id="count-box5">0</div><div class="box-label">Box 5</div></div>
         </div>
 
-        <div id="card-container" class="card-display">
-            <div id="card-question" class="card-question">No flashcards loaded. Go to "Manage & Bulk Import" to add cards.</div>
-            
-            <div id="feynman-block" style="display:none;">
-                <p><strong>Feynman Technique:</strong> Explain this concept in simple terms as if teaching someone else:</p>
-                <textarea id="user-explanation" class="feynman-input" placeholder="Type your simple explanation here..."></textarea>
-                <button class="btn btn-primary" style="margin-top:10px;" onclick="revealAnswer()">Compare with Model Answer</button>
+        <!-- MODE SELECTOR CONTROLS -->
+        <div class="mode-selector">
+            <button class="mode-btn active" id="mode-btn-feynman" onclick="setStudyMode('feynman')">Feynman Method</button>
+            <button class="mode-btn" id="mode-btn-standard" onclick="setStudyMode('standard')">Standard Flashcard</button>
+            <button class="mode-btn" id="mode-btn-cloze" onclick="setStudyMode('cloze')">Cloze Deletion</button>
+        </div>
+
+        <!-- CARD DISPLAY ENGINE -->
+        <div class="card-container" id="card-container">
+            <div>
+                <div class="card-meta">
+                    <span class="book-badge" id="card-book-badge">Book Title</span>
+                    <span id="card-box-badge">Box 1</span>
+                </div>
+
+                <div id="card-question-display" class="card-question">Loading question...</div>
+
+                <!-- FEYNMAN EXPLANATION INTERFACE -->
+                <div id="feynman-interface" class="feynman-box">
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">
+                        <strong>Feynman Rule:</strong> Explain this concept in simple terms as if teaching a beginner:
+                    </p>
+                    <textarea id="user-explanation" class="feynman-input" placeholder="Type your simplified explanation here..."></textarea>
+                </div>
+
+                <!-- CLOZE INTERFACE -->
+                <div id="cloze-interface" style="display:none;">
+                    <div id="cloze-display-text" class="cloze-text"></div>
+                </div>
+
+                <!-- MODEL ANSWER DISPLAY -->
+                <div id="answer-block" class="answer-block">
+                    <div class="answer-title">Model Answer / Core Insight</div>
+                    <div id="card-answer-text" class="answer-text"></div>
+                </div>
             </div>
 
-            <div id="model-answer-block" class="model-answer">
-                <h4 style="margin-top:0;">Model Answer / Detailed Concept:</h4>
-                <p id="card-answer-text"></p>
+            <!-- PRIMARY ACTION BUTTONS -->
+            <div>
+                <div id="reveal-btn-container" class="action-btns" style="margin-top:20px;">
+                    <button class="btn btn-theme" onclick="revealAnswer()">Show Model Answer</button>
+                </div>
+
+                <!-- LEITNER/SM-2 GRADING BUTTONS -->
+                <div id="grading-btns-container" class="action-btns" style="display:none; margin-top:20px;">
+                    <button class="btn btn-again" onclick="gradeCard(1)">Again (Box 1)</button>
+                    <button class="btn btn-hard" onclick="gradeCard(2)">Hard</button>
+                    <button class="btn btn-good" onclick="gradeCard(3)">Good</button>
+                    <button class="btn btn-easy" onclick="gradeCard(4)">Easy (Promote)</button>
+                </div>
             </div>
         </div>
 
-        <div id="assessment-btns" class="btn-group" style="display:none;">
-            <button class="btn btn-danger" onclick="gradeCard(false)">Needs Review (Move to Box 1)</button>
-            <button class="btn btn-success" onclick="gradeCard(true)">Mastered (Promote Box)</button>
-        </div>
     </div>
 
     <!-- MANAGE & BULK IMPORT SECTION -->
     <div id="manage-section" class="section">
-        <h2>Bulk Import Flashcards</h2>
-        <p>Paste JSON array format cards below:</p>
-        <textarea id="bulk-input" class="bulk-area" placeholder='[{"question": "What is 24601?", "answer": "Jean Valjean&apos;s prisoner number.", "coverImage": "./les-miserables.jpg", "box": 1}]'></textarea>
-        <div class="btn-group">
-            <button class="btn btn-primary" onclick="importCards()">Import Cards</button>
-            <button class="btn btn-danger" onclick="clearCards()">Clear All Cards</button>
+        <h3 style="margin:0;">Bulk JSON Import</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">
+            Paste card arrays below. Include <code>coverImage</code> path (e.g., <code>./les-miserables.jpg</code>) and custom <code>themeColor</code> (e.g., <code>#d97706</code>).
+        </p>
+        <textarea id="bulk-input" class="bulk-area" placeholder='[
+  {
+    "book": "Les Misérables",
+    "question": "What is Jean Valjean&apos;s prisoner number, and what does it symbolize?",
+    "answer": "Number 24601. It symbolizes the dehumanization of convicts under the French legal system.",
+    "cloze": "Valjean was known as prisoner {{24601}} at Toulon.",
+    "coverImage": "./les-miserables.jpg",
+    "themeColor": "#d97706",
+    "box": 1
+  }
+]'></textarea>
+        
+        <div class="action-btns" style="justify-content:flex-start;">
+            <button class="btn btn-theme" onclick="importCards()">Import Cards</button>
+            <button class="btn btn-again" onclick="clearAllCards()">Delete All Cards</button>
         </div>
+
+        <h3 style="margin-top:16px; margin-bottom:0;">Loaded Cards (<span id="total-card-count">0</span>)</h3>
+        <div id="card-list" class="card-list"></div>
     </div>
+
 </div>
 
 <script>
-    let flashcards = JSON.parse(localStorage.getItem('gemini_flashcards')) || [
+    // PRESET BOOKS & INITIAL CARDS
+    const BOOK_PALETTES = {
+        "Les Misérables": { color: "#d97706", cover: "./les-miserables.jpg" },
+        "The Count of Monte Cristo": { color: "#2563eb", cover: "./monte-cristo.jpg" },
+        "Roots": { color: "#059669", cover: "./roots.jpg" }
+    };
+
+    let flashcards = JSON.parse(localStorage.getItem('gemini_feynman_cards')) || [
         {
+            id: 1,
+            book: "Les Misérables",
             question: "What is Jean Valjean's original prisoner identification number at Toulon, and why is it symbolic?",
-            answer: "Number 24601. It symbolizes the dehumanization of convicts under the French legal system, stripping Valjean of his name and identity until his redemption through Bishop Myriel.",
+            answer: "Number 24601. It symbolizes the dehumanization of convicts under the French legal system, stripping Valjean of his identity until his redemption through Bishop Myriel.",
+            cloze: "Jean Valjean was designated as prisoner {{24601}} during his time in the galleys at Toulon.",
             coverImage: "./les-miserables.jpg",
+            themeColor: "#d97706",
             box: 1
         },
         {
-            question: "Explain the Feynman concept: How does Javert's view of justice differ from Bishop Myriel's view of mercy?",
-            answer: "Javert views law as absolute and immutable; once a criminal, always a criminal. Bishop Myriel believes in divine mercy and spiritual redemption.",
+            id: 2,
+            book: "Les Misérables",
+            question: "Explain the contrast between Javert's view of law and Bishop Myriel's view of mercy.",
+            answer: "Javert views legal justice as absolute, rigid, and unchangeable. Bishop Myriel believes divine mercy transcends legalism, offering redemption to human souls.",
+            cloze: "While Javert embodies rigid legalism, {{Bishop Myriel}} represents absolute Christian mercy.",
             coverImage: "./les-miserables.jpg",
+            themeColor: "#d97706",
             box: 1
         }
     ];
 
     let currentCardIndex = 0;
+    let currentMode = 'feynman';
+    let selectedBookFilter = 'ALL';
+
+    function init() {
+        renderBookshelf();
+        updateBoxCounts();
+        loadCard();
+    }
 
     function saveState() {
-        localStorage.setItem('gemini_flashcards', JSON.stringify(flashcards));
+        localStorage.setItem('gemini_feynman_cards', JSON.stringify(flashcards));
         updateBoxCounts();
         renderBookshelf();
+        renderCardList();
     }
 
     function renderBookshelf() {
-        let bookshelfDiv = document.getElementById('bookshelf-covers');
+        const bookshelfDiv = document.getElementById('bookshelf-covers');
         bookshelfDiv.innerHTML = '';
-        
-        let uniqueCovers = [...new Set(flashcards.map(c => c.coverImage).filter(Boolean))];
-        
-        if (uniqueCovers.length === 0) {
-            bookshelfDiv.innerHTML = '<span style="color:var(--text-muted); font-size:0.85em;">No covers loaded</span>';
+
+        // Extract unique books from active flashcards
+        const bookMap = {};
+        flashcards.forEach(card => {
+            if (card.book && !bookMap[card.book]) {
+                bookMap[card.book] = {
+                    cover: card.coverImage || BOOK_PALETTES[card.book]?.cover || '',
+                    color: card.themeColor || BOOK_PALETTES[card.book]?.color || '#d97706'
+                };
+            }
+        });
+
+        // Add 'All Books' chip
+        const allChip = document.createElement('div');
+        allChip.className = `book-chip ${selectedBookFilter === 'ALL' ? 'active' : ''}`;
+        allChip.onclick = () => filterByBook('ALL');
+        allChip.innerHTML = `<span class="book-chip-title" style="padding-left:8px;">All Books</span>`;
+        bookshelfDiv.appendChild(allChip);
+
+        // Render each book's cover chip
+        Object.keys(bookMap).forEach(bookTitle => {
+            const chip = document.createElement('div');
+            chip.className = `book-chip ${selectedBookFilter === bookTitle ? 'active' : ''}`;
+            chip.style.setProperty('--book-theme-color', bookMap[bookTitle].color);
+            chip.onclick = () => filterByBook(bookTitle);
+
+            const imgHtml = bookMap[bookTitle].cover 
+                ? `<img src="${bookMap[bookTitle].cover}" alt="${bookTitle}" onerror="this.style.display='none'">` 
+                : '';
+
+            chip.innerHTML = `${imgHtml}<span class="book-chip-title">${bookTitle}</span>`;
+            bookshelfDiv.appendChild(chip);
+        });
+    }
+
+    function filterByBook(bookTitle) {
+        selectedBookFilter = bookTitle;
+        currentCardIndex = 0;
+        renderBookshelf();
+        loadCard();
+    }
+
+    function getFilteredCards() {
+        if (selectedBookFilter === 'ALL') return flashcards;
+        return flashcards.filter(c => c.book === selectedBookFilter);
+    }
+
+    function applyThemeColor(colorHex) {
+        const themeColor = colorHex || '#d97706';
+        document.documentElement.style.setProperty('--book-theme-color', themeColor);
+    }
+
+    function setStudyMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`mode-btn-${mode}`).classList.add('active');
+        loadCard();
+    }
+
+    function loadCard() {
+        const activeCards = getFilteredCards();
+        if (activeCards.length === 0) {
+            document.getElementById('card-question-display').innerText = "No flashcards available for this selection.";
+            document.getElementById('feynman-interface').style.display = 'none';
+            document.getElementById('cloze-interface').style.display = 'none';
+            document.getElementById('answer-block').style.display = 'none';
+            document.getElementById('reveal-btn-container').style.display = 'none';
+            document.getElementById('grading-btns-container').style.display = 'none';
             return;
         }
 
-        uniqueCovers.forEach(imgUrl => {
-            let img = document.createElement('img');
-            img.src = imgUrl;
-            img.className = 'book-thumbnail';
-            img.alt = 'Book Cover';
-            img.onerror = function() { this.style.display = 'none'; };
-            bookshelfDiv.appendChild(img);
-        });
+        if (currentCardIndex >= activeCards.length) currentCardIndex = 0;
+        const card = activeCards[currentCardIndex];
+
+        // Apply book dynamic theme
+        applyThemeColor(card.themeColor || BOOK_PALETTES[card.book]?.color);
+
+        // Update card metadata
+        document.getElementById('card-book-badge').innerText = card.book || 'General';
+        document.getElementById('card-box-badge').innerText = `Box ${card.box || 1}`;
+        document.getElementById('card-question-display').innerText = card.question;
+        document.getElementById('user-explanation').value = '';
+
+        // Reset interfaces
+        document.getElementById('answer-block').style.display = 'none';
+        document.getElementById('reveal-btn-container').style.display = 'flex';
+        document.getElementById('grading-btns-container').style.display = 'none';
+
+        // Toggle Study Mode layout
+        if (currentMode === 'feynman') {
+            document.getElementById('feynman-interface').style.display = 'flex';
+            document.getElementById('cloze-interface').style.display = 'none';
+        } else if (currentMode === 'cloze') {
+            document.getElementById('feynman-interface').style.display = 'none';
+            document.getElementById('cloze-interface').style.display = 'block';
+            renderClozeText(card.cloze || card.question);
+        } else {
+            // Standard Flashcard
+            document.getElementById('feynman-interface').style.display = 'none';
+            document.getElementById('cloze-interface').style.display = 'none';
+        }
+    }
+
+    function renderClozeText(rawCloze) {
+        const parsed = rawCloze.replace(/\{\{(.*?)\}\}/g, '<span class="cloze-blank" onclick="this.classList.toggle(\'revealed\')">$1</span>');
+        document.getElementById('cloze-display-text').innerHTML = parsed;
+    }
+
+    function revealAnswer() {
+        const activeCards = getFilteredCards();
+        if (activeCards.length === 0) return;
+
+        const card = activeCards[currentCardIndex];
+        document.getElementById('card-answer-text').innerText = card.answer;
+        document.getElementById('answer-block').style.display = 'block';
+
+        // Swap action buttons to Leitner grading
+        document.getElementById('reveal-btn-container').style.display = 'none';
+        document.getElementById('grading-btns-container').style.display = 'flex';
+
+        // Reveal all cloze blanks if in Cloze mode
+        document.querySelectorAll('.cloze-blank').forEach(b => b.classList.add('revealed'));
+    }
+
+    function gradeCard(targetBox) {
+        const activeCards = getFilteredCards();
+        if (activeCards.length === 0) return;
+
+        const card = activeCards[currentCardIndex];
+        
+        // Update box assignment
+        if (targetBox === 1) {
+            card.box = 1;
+        } else if (targetBox === 4) {
+            card.box = Math.min((card.box || 1) + 1, 5);
+        } else {
+            card.box = targetBox;
+        }
+
+        saveState();
+        currentCardIndex = (currentCardIndex + 1) % activeCards.length;
+        loadCard();
     }
 
     function updateBoxCounts() {
         for (let i = 1; i <= 5; i++) {
-            let count = flashcards.filter(c => (c.box || 1) === i).length;
+            const count = flashcards.filter(c => (c.box || 1) === i).length;
             document.getElementById(`count-box${i}`).innerText = count;
         }
-    }
-
-    function loadCard() {
-        if (flashcards.length === 0) {
-            document.getElementById('card-question').innerText = "No flashcards available.";
-            document.getElementById('feynman-block').style.display = 'none';
-            document.getElementById('assessment-btns').style.display = 'none';
-            return;
-        }
-
-        let card = flashcards[currentCardIndex];
-        document.getElementById('card-question').innerText = card.question;
-        document.getElementById('user-explanation').value = '';
-        document.getElementById('model-answer-block').style.display = 'none';
-        document.getElementById('feynman-block').style.display = 'block';
-        document.getElementById('assessment-btns').style.display = 'none';
-    }
-
-    function revealAnswer() {
-        let card = flashcards[currentCardIndex];
-        document.getElementById('card-answer-text').innerText = card.answer;
-        document.getElementById('model-answer-block').style.display = 'block';
-        document.getElementById('assessment-btns').style.display = 'flex';
-    }
-
-    function gradeCard(success) {
-        let card = flashcards[currentCardIndex];
-        if (!card.box) card.box = 1;
-
-        if (success) {
-            if (card.box < 5) card.box++;
-        } else {
-            card.box = 1;
-        }
-
-        saveState();
-        currentCardIndex = (currentCardIndex + 1) % flashcards.length;
-        loadCard();
     }
 
     function switchTab(tab) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
         if (tab === 'study') {
             document.querySelectorAll('.tab-btn')[0].classList.add('active');
             document.getElementById('study-section').classList.add('active');
@@ -316,38 +687,60 @@
         } else {
             document.querySelectorAll('.tab-btn')[1].classList.add('active');
             document.getElementById('manage-section').classList.add('active');
+            renderCardList();
         }
     }
 
     function importCards() {
         try {
-            let input = document.getElementById('bulk-input').value;
-            let parsed = JSON.parse(input);
+            const raw = document.getElementById('bulk-input').value;
+            const parsed = JSON.parse(raw);
             if (Array.isArray(parsed)) {
                 flashcards = flashcards.concat(parsed);
                 saveState();
-                alert(`Successfully imported ${parsed.length} new cards!`);
+                alert(`Successfully imported ${parsed.length} flashcards!`);
                 switchTab('study');
             } else {
-                alert("Import failed: Input must be a valid JSON array.");
+                alert("Import failed: Expected a valid JSON array of cards.");
             }
         } catch (e) {
-            alert("Invalid JSON format. Please check your data structure.");
+            alert("JSON Syntax Error: Please check your array formatting.");
         }
     }
 
-    function clearCards() {
-        if (confirm("Are you sure you want to clear all saved flashcards?")) {
+    function clearAllCards() {
+        if (confirm("Are you sure you want to delete all saved cards?")) {
             flashcards = [];
             saveState();
             loadCard();
         }
     }
 
-    // Initialize application state
-    updateBoxCounts();
-    renderBookshelf();
-    loadCard();
+    function renderCardList() {
+        const listDiv = document.getElementById('card-list');
+        document.getElementById('total-card-count').innerText = flashcards.length;
+        listDiv.innerHTML = '';
+
+        flashcards.forEach((card, index) => {
+            const item = document.createElement('div');
+            item.className = 'card-item';
+            item.innerHTML = `
+                <div>
+                    <strong>[${card.book || 'General'}]</strong> ${card.question.substring(0, 55)}...
+                </div>
+                <button class="btn btn-again" style="padding:4px 8px; font-size:0.75rem;" onclick="deleteCard(${index})">Delete</button>
+            `;
+            listDiv.appendChild(item);
+        });
+    }
+
+    function deleteCard(index) {
+        flashcards.splice(index, 1);
+        saveState();
+    }
+
+    // Initialize application on startup
+    init();
 </script>
 
 </body>
