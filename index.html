@@ -62,11 +62,20 @@
     body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; padding: 20px; display: flex; flex-direction: column; align-items: center; }
     .container { max-width: 680px; width: 100%; }
 
-    header { margin-bottom: 24px; text-align: center; }
-    h1 { font-size: 1.75rem; margin-bottom: 12px; }
+    header { margin-bottom: 16px; text-align: center; }
+    h1 { font-size: 1.75rem; margin-bottom: 6px; }
+
+    /* Deck Statistics Line */
+    #deck-stats { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
+
+    /* Visual Bookshelf Gallery */
+    .bookshelf { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; margin-bottom: 16px; scrollbar-width: thin; }
+    .book-thumb { flex: 0 0 auto; width: 50px; height: 75px; border-radius: 6px; border: 2px solid #cbd5e1; object-fit: cover; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
+    .book-thumb:hover { transform: scale(1.05); border-color: var(--accent-color); }
+    .book-thumb.active-thumb { border-color: var(--accent-color); box-shadow: 0 0 8px rgba(59, 130, 246, 0.4); }
 
     /* Controls Bar */
-    .controls { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; justify-content: space-between; align-items: center; }
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; justify-content: space-between; align-items: center; }
     select, button { padding: 8px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background-color: #fff; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
     select:focus, button:focus { outline: 2px solid var(--accent-color); }
 
@@ -79,6 +88,8 @@
     .card { background-color: var(--card-bg); border: 2px solid var(--card-border); border-radius: 16px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.3s ease; min-height: 320px; display: flex; flex-direction: column; justify-content: space-between; }
     
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .card-cover-icon { width: 32px; height: 48px; border-radius: 4px; object-fit: cover; border: 1px solid var(--card-border); }
     .book-badge { background-color: var(--accent-light); color: var(--accent-color); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     .card-stats { font-size: 0.8rem; color: var(--text-muted); }
 
@@ -113,7 +124,10 @@
   <header>
     <h1>Smart Learning App</h1>
     <div id="queue-count" style="font-size: 0.9rem; color: var(--text-muted);">Loading study queue...</div>
+    <div id="deck-stats"></div>
   </header>
+
+  <div id="bookshelf-gallery" class="bookshelf"></div>
 
   <div class="controls">
     <select id="book-filter" onchange="filterBook()">
@@ -143,6 +157,7 @@ const initialDeck = [
   {
     id: "card_1",
     book: "Les Misérables",
+    coverImage: "https://upload.wikimedia.org/wikipedia/commons/9/99/Les-miserables-1862-cover.jpg",
     prompt: "Who is the protagonist of Les Misérables, and what was his prisoner number?",
     answer: "Jean Valjean, prisoner number 24601.",
     clozeTarget: "Jean Valjean",
@@ -153,6 +168,7 @@ const initialDeck = [
   {
     id: "card_2",
     book: "The Count of Monte Cristo",
+    coverImage: "https://upload.wikimedia.org/wikipedia/commons/d/d6/Le_Comte_de_Monte-Cristo_1846_1.jpg",
     prompt: "What is the name of the chateau where Edmond Dantès is imprisoned?",
     answer: "Château d'If.",
     clozeTarget: "Château d'If",
@@ -163,6 +179,7 @@ const initialDeck = [
   {
     id: "card_3",
     book: "Roots",
+    coverImage: "",
     prompt: "Who is the original African ancestor captured and brought to America in Roots?",
     answer: "Kunta Kinte.",
     clozeTarget: "Kunta Kinte",
@@ -173,6 +190,7 @@ const initialDeck = [
   {
     id: "card_4",
     book: "11/22/63",
+    coverImage: "",
     prompt: "What is the primary date Jake Epping travels back to in order to prevent the Kennedy assassination?",
     answer: "September 9, 1958.",
     clozeTarget: "1958",
@@ -183,6 +201,7 @@ const initialDeck = [
   {
     id: "card_5",
     book: "Dissolution",
+    coverImage: "",
     prompt: "Who is the hunchbacked lawyer protagonist in C.J. Sansom's Dissolution?",
     answer: "Matthew Shardlake.",
     clozeTarget: "Matthew Shardlake",
@@ -193,7 +212,7 @@ const initialDeck = [
 ];
 
 let deck = JSON.parse(localStorage.getItem('flashcard_deck')) || initialDeck;
-let currentMode = 'flashcard'; // 'flashcard', 'feynman', 'cloze'
+let currentMode = 'flashcard';
 let selectedBook = 'ALL';
 let activeQueue = [];
 let currentCardIndex = 0;
@@ -216,7 +235,12 @@ function getBookThemeClass(bookTitle) {
 
 function updateBookFilterOptions() {
   const filterSelect = document.getElementById('book-filter');
+  const galleryEl = document.getElementById('bookshelf-gallery');
+  const statsEl = document.getElementById('deck-stats');
+
   const books = [...new Set(deck.map(card => card.book))];
+  
+  // Populate Filter Dropdown
   filterSelect.innerHTML = '<option value="ALL">All Books</option>';
   books.forEach(book => {
     const opt = document.createElement('option');
@@ -225,10 +249,40 @@ function updateBookFilterOptions() {
     if (book === selectedBook) opt.selected = true;
     filterSelect.appendChild(opt);
   });
+
+  // Populate Bookshelf Gallery
+  galleryEl.innerHTML = '';
+  books.forEach(book => {
+    const sampleCard = deck.find(c => c.book === book && c.coverImage);
+    if (sampleCard && sampleCard.coverImage) {
+      const img = document.createElement('img');
+      img.src = sampleCard.coverImage;
+      img.title = book;
+      img.alt = book;
+      img.className = `book-thumb ${selectedBook === book ? 'active-thumb' : ''}`;
+      img.onclick = () => {
+        selectedBook = book;
+        filterSelect.value = book;
+        filterBook();
+      };
+      galleryEl.appendChild(img);
+    }
+  });
+
+  // Calculate and Display Total & Per-Book Statistics
+  const totalsByBook = deck.reduce((acc, card) => {
+    acc[card.book] = (acc[card.book] || 0) + 1;
+    return acc;
+  }, {});
+
+  let statsSummary = `Total Cards: ${deck.length} | `;
+  statsSummary += Object.entries(totalsByBook).map(([b, c]) => `${b}: ${c}`).join(' • ');
+  statsEl.innerText = statsSummary;
 }
 
 function filterBook() {
   selectedBook = document.getElementById('book-filter').value;
+  updateBookFilterOptions();
   buildQueue();
 }
 
@@ -339,10 +393,15 @@ function renderCard() {
     `;
   }
 
+  const coverHTML = card.coverImage ? `<img src="${card.coverImage}" class="card-cover-icon" alt="${card.book} Cover">` : '';
+
   container.innerHTML = `
     <div>
       <div class="card-header">
-        <span class="book-badge">${card.book}</span>
+        <div class="header-left">
+          ${coverHTML}
+          <span class="book-badge">${card.book}</span>
+        </div>
         <span class="card-stats">Card ${currentCardIndex + 1} of ${activeQueue.length}</span>
       </div>
       <div class="card-prompt">${card.prompt}</div>
@@ -357,19 +416,16 @@ function revealAnswer() {
   renderCard();
 }
 
-// SM-2 Spaced Repetition Scheduling Engine
 function gradeCard(grade) {
   const card = activeQueue[currentCardIndex];
 
-  // Calculate new Ease Factor (EF)
   let ef = card.easeFactor || 2.5;
   ef = ef + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
   if (ef < 1.3) ef = 1.3;
 
-  // Calculate new Interval
   let interval = card.interval || 1;
   if (grade === 1) {
-    interval = 1; // Reset on "Again"
+    interval = 1;
   } else if (grade === 2) {
     interval = Math.round(interval * 1.2);
   } else if (grade === 3) {
@@ -378,15 +434,13 @@ function gradeCard(grade) {
     interval = Math.round(interval * ef * 1.3);
   }
 
-  // Calculate next due date
   const nextDueDate = new Date();
   if (grade === 1) {
-    nextDueDate.setMinutes(nextDueDate.getMinutes() + 10); // 10 min re-test
+    nextDueDate.setMinutes(nextDueDate.getMinutes() + 10);
   } else {
     nextDueDate.setDate(nextDueDate.getDate() + interval);
   }
 
-  // Update original deck reference
   const deckCard = deck.find(c => c.id === card.id);
   if (deckCard) {
     deckCard.easeFactor = ef;
@@ -396,7 +450,6 @@ function gradeCard(grade) {
 
   saveDeck();
   
-  // Advance queue
   activeQueue.splice(currentCardIndex, 1);
   isRevealed = false;
   
@@ -408,7 +461,6 @@ function gradeCard(grade) {
   renderCard();
 }
 
-// Data Handling
 function exportData() {
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(deck, null, 2));
   const dlAnchor = document.createElement('a');
