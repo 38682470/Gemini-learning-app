@@ -2,1196 +2,651 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Ebbinghaus Literature Studio</title>
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini Learning App v3.1</title>
   <style>
-    /* --- RESET & BASE STYLES --- */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-inner: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --accent-color: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.25);
     }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
     body {
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      background-color: #0b1329; /* Dark background matching screenshot */
-      color: #f8fafc;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding-bottom: 3rem;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* --- APP HEADER --- */
-    .app-header {
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid #1e293b;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      padding: 0.85rem 1.5rem;
-    }
-
-    .header-container {
-      max-width: 1200px;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      padding: 20px;
+      max-width: 1000px;
       margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
     }
 
-    .brand-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #f8fafc;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    header {
+      text-align: center;
+      margin-bottom: 20px;
     }
 
-    .header-stats {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: #1e293b;
-      padding: 0.4rem 0.85rem;
-      border-radius: 9999px;
-      border: 1px solid #334155;
+    header h1 {
+      color: var(--accent-color);
+      font-size: 2rem;
+      margin-bottom: 4px;
+      transition: color 0.3s ease;
+    }
+
+    header p {
+      color: var(--text-muted);
       font-size: 0.85rem;
-      font-weight: 600;
     }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    /* Bookshelf Gallery */
+    .bookshelf-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
     }
 
-    /* --- BUTTONS --- */
-    .btn {
-      background: #1e293b;
-      color: #f8fafc;
-      border: 1px solid #334155;
-      padding: 0.5rem 0.85rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      touch-action: manipulation;
-    }
-
-    .btn:hover { background: #334155; }
-    .btn-primary { background: #6366f1; border-color: #6366f1; color: #ffffff; }
-    .btn-primary:hover { background: #4f46e5; }
-    .btn-warning { background: #d97706; border-color: #d97706; color: #ffffff; }
-
-    /* --- MAIN CONTAINER --- */
-    .main-container {
-      max-width: 1200px;
-      width: 100%;
-      margin: 1.5rem auto 0 auto;
-      padding: 0 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-
-    /* --- BOOKSHELF HEADER ROW --- */
-    .bookshelf-header-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .section-headline {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #ffffff;
-      letter-spacing: -0.02em;
+    .bookshelf-title {
+      font-size: 0.75rem;
       text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 700;
     }
 
-    .pill-filter-btn {
-      background: rgba(99, 102, 241, 0.2);
-      color: #a5b4fc;
-      border: 1px solid rgba(99, 102, 241, 0.4);
-      padding: 0.35rem 0.85rem;
-      border-radius: 9999px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .pill-filter-btn:hover, .pill-filter-btn.active {
-      background: #6366f1;
-      color: #ffffff;
-    }
-
-    /* --- BOOKSHELF GRID (SIDE-BY-SIDE LAYOUT FIX) --- */
     .bookshelf-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 1.25rem;
-      width: 100%;
-      box-sizing: border-box;
-      align-items: stretch;
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 8px;
     }
 
-    /* --- BOOK CARD TEMPLATE --- */
-    .book-card {
-      position: relative !important; /* Prevents overlap */
-      background: #131e32;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 1.25rem;
+    .book-tile {
+      flex: 0 0 110px;
+      height: 150px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      background: var(--bg-inner);
+      cursor: pointer;
+      overflow: visible;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-    }
-
-    /* Accent border along the top edge */
-    .book-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: var(--card-accent, #fef3c7);
-      border-top-left-radius: 16px;
-      border-top-right-radius: 16px;
-    }
-
-    .book-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.5);
-    }
-
-    .book-card.selected-deck {
-      border-color: #6366f1;
-    }
-
-    .book-card-main {
-      display: flex;
-      gap: 1.1rem;
-      align-items: flex-start;
-    }
-
-    .book-cover-thumb {
-      width: 85px;
-      height: 120px;
-      border-radius: 8px;
-      object-fit: cover;
-      background: #1e293b;
-      flex-shrink: 0;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
-    }
-
-    .book-cover-fallback-thumb {
-      width: 85px;
-      height: 120px;
-      border-radius: 8px;
-      background: #334155;
-      display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 0.5rem;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #f8fafc;
-      flex-shrink: 0;
+      padding: 6px;
+      transition: all 0.2s ease;
+      position: relative;
     }
 
-    .book-card-details {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      flex-grow: 1;
+    .book-tile:hover { transform: translateY(-3px); }
+
+    .book-tile.active {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 14px var(--accent-glow);
     }
 
-    .book-card-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #ffffff;
-      line-height: 1.3;
-    }
-
-    .book-card-stats {
-      font-size: 0.85rem;
-      color: #94a3b8;
-      margin-bottom: 0.5rem;
-    }
-
-    .progress-bar-container {
+    .book-tile img {
       width: 100%;
-      height: 6px;
-      background: #1e293b;
-      border-radius: 9999px;
-      overflow: hidden;
-      margin-top: 0.25rem;
-    }
-
-    .progress-bar-fill {
       height: 100%;
-      background: #10b981;
-      width: 0%;
-      transition: width 0.3s ease;
+      object-fit: cover;
+      border-radius: 4px;
     }
 
-    .book-card-footer {
+    .book-fallback {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: var(--text-main);
+      padding: 4px;
+    }
+
+    /* Delete Deck Button */
+    .delete-deck-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: #dc2626;
+      color: white;
+      border: 2px solid var(--bg-card);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.1s ease;
+    }
+
+    .book-tile:hover .delete-deck-btn { opacity: 1; }
+    .delete-deck-btn:hover { background-color: #b91c1c; transform: scale(1.1); }
+    .delete-deck-btn:active { transform: scale(0.9); }
+
+    /* Leitner Boxes Display */
+    .leitner-bar {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .box-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .box-card .box-label { font-size: 0.65rem; color: var(--text-muted); font-weight: bold; }
+    .box-card .box-count { font-size: 1.3rem; font-weight: bold; color: var(--accent-color); }
+
+    /* Controls Bar */
+    .controls-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 1.25rem;
-      padding-top: 0.85rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 0.9rem;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    select, button {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
       font-weight: 600;
     }
 
-    .action-study-link {
-      color: #fde047; /* Yellow action link */
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      transition: opacity 0.2s ease;
-    }
+    button.btn-action { background: var(--accent-color); color: #000; border: none; }
 
-    .action-study-link:hover { opacity: 0.8; }
-
-    .action-reset-link {
-      color: #94a3b8;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-size: 0.85rem;
-      transition: color 0.2s ease;
-    }
-
-    .action-reset-link:hover { color: #f8fafc; }
-
-    /* --- QUEUE SUMMARY PANEL --- */
-    .queue-panel {
-      background: #131e32;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 1.25rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .box-counters {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .box-pill {
-      background: #0b1329;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-      padding: 0.4rem 0.75rem;
-      text-align: center;
-      min-width: 65px;
-    }
-
-    .box-pill .lbl { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; }
-    .box-pill .val { font-size: 1.1rem; font-weight: 700; color: #f8fafc; }
-
-    /* --- STUDY CONTAINER --- */
-    .study-area {
-      max-width: 760px;
-      width: 100%;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
+    /* Technique Tabs */
     .technique-tabs {
       display: flex;
-      background: #131e32;
-      padding: 0.35rem;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.1);
-      gap: 0.25rem;
+      gap: 4px;
+      background: var(--bg-card);
+      padding: 6px;
+      border-radius: 10px 10px 0 0;
+      border: 1px solid var(--border-color);
+      border-bottom: none;
     }
 
     .tab-btn {
       flex: 1;
+      padding: 10px;
+      text-align: center;
       background: transparent;
       border: none;
-      color: #94a3b8;
-      padding: 0.6rem 0.5rem;
-      border-radius: 7px;
+      color: var(--text-muted);
+      font-weight: 700;
       font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
+      border-radius: 6px;
       transition: all 0.2s ease;
-      text-align: center;
     }
 
     .tab-btn.active {
-      background: #1e293b;
-      color: #f8fafc;
+      background: var(--accent-color);
+      color: #000;
     }
 
-    .card-viewport {
-      background: #131e32;
-      border-radius: 16px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 2rem;
-      min-height: 360px;
+    /* Main Card Display */
+    .card-container {
+      background: var(--bg-card);
+      border: 2px solid var(--accent-color);
+      border-radius: 0 0 12px 12px;
+      padding: 24px;
+      min-height: 340px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 6px 24px var(--accent-glow);
+      transition: border-color 0.3s ease;
     }
 
-    .card-meta-tag {
+    .card-meta {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: #94a3b8;
-      margin-bottom: 1rem;
-    }
-
-    .book-pastel-pill {
-      padding: 0.25rem 0.75rem;
-      border-radius: 9999px;
-      color: #0f172a;
       font-size: 0.75rem;
-      font-weight: 700;
+      color: var(--text-muted);
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
     }
 
-    .card-prompt-text {
-      font-size: 1.25rem;
+    .card-prompt {
+      font-size: 1.15rem;
       font-weight: 600;
       line-height: 1.5;
-      color: #f8fafc;
+      margin-bottom: 20px;
     }
 
-    .feynman-input {
+    textarea {
       width: 100%;
-      min-height: 100px;
-      background: #0b1329;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 0.85rem;
-      color: #f8fafc;
-      font-family: inherit;
-      font-size: 0.95rem;
-      resize: vertical;
-      outline: none;
-      margin-top: 1rem;
-    }
-
-    .card-answer-box {
-      margin-top: 1.25rem;
-      padding-top: 1.25rem;
-      border-top: 1px dashed #334155;
-      display: none;
-    }
-
-    .card-answer-box.visible { display: block; }
-
-    .rating-container {
-      display: none;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.75rem;
-      margin-top: 1.5rem;
-    }
-
-    .rating-container.visible { display: grid; }
-
-    .btn-rate {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0.75rem 0.5rem;
-      border-radius: 10px;
-      border: none;
-      font-weight: 700;
-      cursor: pointer;
-      color: #ffffff;
-    }
-
-    .rate-again { background: #ef4444; }
-    .rate-hard { background: #f97316; }
-    .rate-good { background: #10b981; }
-    .rate-easy { background: #3b82f6; }
-
-    /* --- MODALS --- */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(11, 19, 41, 0.85);
-      backdrop-filter: blur(8px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 1rem;
-    }
-
-    .modal-overlay.active { display: flex; }
-
-    .modal-card {
-      background: #131e32;
-      border: 1px solid #334155;
-      border-radius: 16px;
-      max-width: 600px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      padding: 1.75rem;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.25rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid #1e293b;
-    }
-
-    .form-group {
-      margin-bottom: 1.1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .form-control {
-      background: #0b1329;
-      border: 1px solid #334155;
-      border-radius: 8px;
-      padding: 0.65rem 0.85rem;
-      color: #f8fafc;
-      font-family: inherit;
+      height: 100px;
+      background: var(--bg-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      padding: 12px;
       font-size: 0.9rem;
-      outline: none;
+      resize: vertical;
+      margin-bottom: 12px;
     }
 
-    .form-control:focus { border-color: #6366f1; }
+    .model-answer-box {
+      background: var(--bg-inner);
+      border-left: 4px solid var(--accent-color);
+      padding: 14px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+
+    .cloze-target {
+      background: var(--accent-color);
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    /* 4-Button Anki Rating Bar */
+    .anki-rating-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-again { background: #dc2626; color: #fff; border: none; }
+    .btn-hard  { background: #ea580c; color: #fff; border: none; }
+    .btn-good  { background: #16a34a; color: #fff; border: none; }
+    .btn-easy  { background: #2563eb; color: #fff; border: none; }
+
+    .btn-again:hover { background: #b91c1c; }
+    .btn-hard:hover  { background: #c2410c; }
+    .btn-good:hover  { background: #15803d; }
+    .btn-easy:hover  { background: #1d4ed8; }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <!-- TOP APP HEADER -->
-  <header class="app-header">
-    <div class="header-container">
-      <div class="brand-title">
-        <span>📚</span> Ebbinghaus Literature Studio
-      </div>
-
-      <div class="header-stats">
-        <div>🔥 <span id="streakCounter">0</span> days</div>
-        <div style="color: #334155;">|</div>
-        <div>✅ <span id="todayCounter">0</span> today</div>
-      </div>
-
-      <div class="header-actions">
-        <button class="btn" onclick="openSearchModal()">🔍 Search</button>
-        <button class="btn btn-warning" onclick="openVacationModal()">🌴 Vacation</button>
-        <button class="btn" onclick="exportData()">💾 Export JSON</button>
-        <!-- Clicking Import opens the text box modal directly -->
-        <button class="btn btn-primary" onclick="openImportModal()">📥 Import</button>
-        <button class="btn" onclick="openCardEditorModal()">+ New Card</button>
-      </div>
-    </div>
+  <header>
+    <h1 id="app-title">Gemini Learning App v3.1</h1>
+    <p>Multi-Book Reader • 4-Button Anki Engine & Multi-Technique Tabs</p>
   </header>
 
-  <main class="main-container">
+  <!-- Bookshelf -->
+  <div class="bookshelf-wrapper">
+    <div class="bookshelf-title">Bookshelf Collection</div>
+    <div class="bookshelf-grid" id="bookshelf"></div>
+  </div>
 
-    <!-- BOOKSHELF SECTION -->
-    <section>
-      <div class="bookshelf-header-row">
-        <h1 class="section-headline">Interactive Bookshelf</h1>
-        <button id="btnAllLiterature" class="pill-filter-btn active" onclick="selectDeck('ALL')">All Literature Decks Combined</button>
-      </div>
+  <!-- Leitner Boxes Bar -->
+  <div class="leitner-bar">
+    <div class="box-card"><div class="box-label">BOX 1</div><div class="box-count" id="b1-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 2</div><div class="box-count" id="b2-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 3</div><div class="box-count" id="b3-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 4</div><div class="box-count" id="b4-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 5</div><div class="box-count" id="b5-count">0</div></div>
+    <div class="box-card"><div class="box-label">MASTERED</div><div class="box-count" id="bm-count">0</div></div>
+  </div>
 
-      <!-- BOOKSHELF GRID CONTAINER (SIDE-BY-SIDE CARDS) -->
-      <div id="bookshelf" class="bookshelf-grid">
-        <!-- Rendered dynamically -->
-      </div>
-    </section>
-
-    <!-- QUEUE METRICS PANEL -->
-    <section class="queue-panel">
-      <div>
-        <div style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Active Deck Filter</div>
-        <div id="activeDeckLabel" style="font-size: 1.1rem; font-weight: 700; color: #6366f1;">All Literature Decks Combined</div>
-      </div>
-
-      <div class="box-counters">
-        <div class="box-pill"><div class="lbl">Box 1</div><div class="val" id="cntBox1">0</div></div>
-        <div class="box-pill"><div class="lbl">Box 2</div><div class="val" id="cntBox2">0</div></div>
-        <div class="box-pill"><div class="lbl">Box 3</div><div class="val" id="cntBox3">0</div></div>
-        <div class="box-pill"><div class="lbl">Box 4</div><div class="val" id="cntBox4">0</div></div>
-        <div class="box-pill"><div class="lbl">Mastered</div><div class="val" id="cntMastered" style="color: #10b981;">0</div></div>
-      </div>
-    </section>
-
-    <!-- FLASHCARD STUDY VIEWPORT -->
-    <section class="study-area">
-      <div class="technique-tabs">
-        <button class="tab-btn active" id="tabRecall" onclick="setStudyTab('RECALL')">1. Active Recall</button>
-        <button class="tab-btn" id="tabFeynman" onclick="setStudyTab('FEYNMAN')">2. Feynman Technique</button>
-        <button class="tab-btn" id="tabCloze" onclick="setStudyTab('CLOZE')">3. Cloze Masking</button>
-      </div>
-
-      <div class="card-viewport">
-        <div class="card-meta-tag">
-          <span id="cardBookTitle" class="book-pastel-pill" style="background:#e2e8f0;">Book Title</span>
-          <div style="display:flex; gap:0.5rem; align-items:center;">
-            <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="speakText()">🔊 Speak</button>
-            <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="editCurrentCard()">✏️ Edit</button>
-            <span id="cardIntervalBadge">Interval: 1d</span>
-          </div>
-        </div>
-
-        <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
-          <div id="cardPromptText" class="card-prompt-text">Select or import a deck to begin study.</div>
-
-          <div id="feynmanSection" style="display:none;">
-            <textarea id="feynmanText" class="feynman-input" placeholder="Explain this concept simply in your own words..."></textarea>
-          </div>
-
-          <div id="answerBox" class="card-answer-box">
-            <div style="font-size: 0.75rem; font-weight: 700; color: #a855f7; text-transform: uppercase; margin-bottom: 0.4rem;">Model Answer</div>
-            <div id="cardAnswerText" style="font-size: 1.05rem; color: #e2e8f0; line-height: 1.5;"></div>
-          </div>
-        </div>
-
-        <button id="btnReveal" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem; margin-top: 1rem;" onclick="revealAnswer()">
-          Reveal Answer (Spacebar)
-        </button>
-
-        <div id="ratingButtons" class="rating-container">
-          <button class="btn-rate rate-again" onclick="rateCard(1)">Again <span style="font-size:0.65rem;">[1]</span></button>
-          <button class="btn-rate rate-hard" onclick="rateCard(2)">Hard <span style="font-size:0.65rem;">[2]</span></button>
-          <button class="btn-rate rate-good" onclick="rateCard(3)">Good <span style="font-size:0.65rem;">[3]</span></button>
-          <button class="btn-rate rate-easy" onclick="rateCard(4)">Easy <span style="font-size:0.65rem;">[4]</span></button>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- DIRECT PASTE & UPLOAD JSON MODAL -->
-  <div class="modal-overlay" id="importModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div style="font-weight: 700; font-size: 1.1rem;">Import JSON Data</div>
-        <button class="btn" style="padding:0.2rem 0.5rem;" onclick="closeImportModal()">✕</button>
-      </div>
-
-      <div class="form-group">
-        <label style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Paste JSON file content into the box below:</label>
-        <textarea id="jsonPasteInput" class="form-control" rows="10" placeholder='[
-  {
-    "book": "The Count of Monte Cristo",
-    "coverImage": "The count of monte cristo.jpeg",
-    "prompt": "Who is Abbé Faria?",
-    "answer": "An Italian priest and fellow prisoner in the Château d’If who becomes Edmond Dantès’ mentor."
-  }
-]'></textarea>
-      </div>
-
-      <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
-        <button class="btn" onclick="closeImportModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="handleUploadJsonClick()">Upload JSON File</button>
-      </div>
+  <!-- Controls Bar -->
+  <div class="controls-bar">
+    <select id="book-select" onchange="filterByBook(this.value)">
+      <option value="ALL">All Books Combined (Encompassing Study)</option>
+    </select>
+    <div>
+      <button class="btn-action" onclick="triggerImport()">+ Bulk Import</button>
+      <button onclick="exportData()">Export</button>
+      <button onclick="resetApp()">Delete All Data</button>
+      <input type="file" id="file-input" class="hidden" accept=".json" onchange="importJSON(event)">
     </div>
   </div>
 
-  <!-- SEARCH MODAL -->
-  <div class="modal-overlay" id="searchModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div style="font-weight: 700;">Global Flashcard Search</div>
-        <button class="btn" style="padding:0.2rem 0.5rem;" onclick="closeSearchModal()">✕</button>
-      </div>
-      <input type="text" id="searchInput" class="form-control" placeholder="Search questions, answers, tags..." oninput="executeSearch()">
-      <div id="searchResults" style="display:flex; flex-direction:column; gap:0.5rem; margin-top:1rem; max-height:350px; overflow-y:auto;"></div>
-    </div>
+  <!-- 3 Study Technique Tabs -->
+  <div class="technique-tabs">
+    <button class="tab-btn active" id="tab-feynman" onclick="setMode('feynman')">Feynman Technique</button>
+    <button class="tab-btn" id="tab-cloze" onclick="setMode('cloze')">Cloze Technique</button>
+    <button class="tab-btn" id="tab-standard" onclick="setMode('standard')">Standard Q&A</button>
   </div>
 
-  <!-- VACATION FREEZE MODAL -->
-  <div class="modal-overlay" id="vacationModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div style="font-weight: 700;">🌴 Vacation / Freeze Mode</div>
-        <button class="btn" style="padding:0.2rem 0.5rem;" onclick="closeVacationModal()">✕</button>
+  <!-- Flashcard Card Display -->
+  <div class="card-container">
+    <div>
+      <div class="card-meta">
+        <span id="card-book-title">NO CARDS LOADED</span>
+        <span id="card-box-label">-</span>
       </div>
-      <p style="font-size:0.85rem; color:#cbd5e1; margin-bottom:1rem;">Shift all card due dates forward by N days to prevent backlogs.</p>
-      <div class="form-group">
-        <label>Days to shift forward:</label>
-        <input type="number" id="vacationDaysInput" class="form-control" value="7" min="1" max="90">
-      </div>
-      <div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:1rem;">
-        <button class="btn" onclick="closeVacationModal()">Cancel</button>
-        <button class="btn btn-warning" onclick="applyVacationShift()">Apply Shift</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- CARD EDITOR MODAL -->
-  <div class="modal-overlay" id="cardEditorModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <div style="font-weight: 700;" id="editorModalTitle">Create Flashcard</div>
-        <button class="btn" style="padding:0.2rem 0.5rem;" onclick="closeCardEditorModal()">✕</button>
+      <div class="card-prompt" id="card-prompt">Please import a JSON file to begin.</div>
+
+      <!-- Mode 1: Feynman -->
+      <div id="mode-feynman-panel">
+        <textarea id="feynman-input" placeholder="Explain this concept in simple terms as if teaching someone else..."></textarea>
+        <button onclick="toggleAnswer()" style="width:100%;">Compare with Model Answer</button>
       </div>
-      <form id="cardForm" onsubmit="saveCardForm(event)">
-        <input type="hidden" id="editCardId">
-        <div class="form-group">
-          <label>Book Title</label>
-          <input type="text" id="editBook" class="form-control" required placeholder="The Count of Monte Cristo">
-        </div>
-        <div class="form-group">
-          <label>Cover Image Filename / URL</label>
-          <input type="text" id="editCoverImage" class="form-control" placeholder="The count of monte cristo.jpeg">
-        </div>
-        <div class="form-group">
-          <label>Top Accent Color (Hex)</label>
-          <input type="color" id="editPastelColor" class="form-control" value="#fde047" style="height:40px; padding:2px;">
-        </div>
-        <div class="form-group">
-          <label>Prompt / Question</label>
-          <textarea id="editPrompt" class="form-control" rows="3" required></textarea>
-        </div>
-        <div class="form-group">
-          <label>Model Answer</label>
-          <textarea id="editAnswer" class="form-control" rows="3" required></textarea>
-        </div>
-        <div class="form-group">
-          <label>Cloze Target (Optional)</label>
-          <input type="text" id="editClozeTarget" class="form-control">
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-top:1.25rem;">
-          <button type="button" class="btn" style="background:#ef4444;" id="btnDeleteCard" onclick="deleteCurrentEditingCard()">Delete</button>
-          <div style="display:flex; gap:0.5rem; margin-left:auto;">
-            <button type="button" class="btn" onclick="closeCardEditorModal()">Cancel</button>
-            <button type="submit" class="btn btn-primary">Save Card</button>
-          </div>
-        </div>
-      </form>
+
+      <!-- Mode 2: Cloze -->
+      <div id="mode-cloze-panel" class="hidden">
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:10px;">Recall the missing target phrase, then reveal:</p>
+        <button onclick="toggleAnswer()" style="width:100%;">Reveal Blank Target</button>
+      </div>
+
+      <!-- Mode 3: Standard -->
+      <div id="mode-standard-panel" class="hidden">
+        <button onclick="toggleAnswer()" style="width:100%;">Show Model Answer</button>
+      </div>
+
+      <!-- Model Answer -->
+      <div id="model-answer" class="model-answer-box hidden"></div>
+    </div>
+
+    <!-- 4-Button Anki Rating Bar -->
+    <div>
+      <div style="font-size: 0.7rem; text-align: center; color: var(--text-muted); margin-bottom: 6px; font-weight: bold; letter-spacing: 0.5px;">RATE YOUR RECALL (ANKI SM-2)</div>
+      <div class="anki-rating-bar">
+        <button class="btn-again" onclick="rateCard('again')">Again<br><small>(Reset Box 1)</small></button>
+        <button class="btn-hard" onclick="rateCard('hard')">Hard<br><small>(Stay in Box)</small></button>
+        <button class="btn-good" onclick="rateCard('good')">Good<br><small>(+1 Box)</small></button>
+        <button class="btn-easy" onclick="rateCard('easy')">Easy<br><small>(+2 Boxes)</small></button>
+      </div>
     </div>
   </div>
 
   <script>
-    /* --- INITIAL STARTER DECKS (COUNT OF MONTE CRISTO & LES MISÉRABLES) --- */
-    const DEFAULT_DECKS = [
-      {
-        id: "cmc-001",
-        book: "The Count of Monte Cristo",
-        coverImage: "The count of monte cristo.jpeg",
-        prompt: "Who translated the unabridged 1996 Penguin Classics edition of The Count of Monte Cristo?",
-        answer: "Robin Buss translated the celebrated uncensored 1996 edition.",
-        clozeTarget: "Robin Buss",
-        pastelColor: "#fde047",
-        interval: 1, repetition: 0, easeFactor: 2.5, dueDate: new Date().toISOString(), box: 1
-      },
-      {
-        id: "lm-001",
-        book: "Les Misérables",
-        coverImage: "les-miserables.jpg",
-        prompt: "Who wrote Les Misérables, and who produced the 2013 Penguin Classics translation?",
-        answer: "Victor Hugo wrote Les Misérables, translated by Christine Donougher in the 2013 Penguin edition.",
-        clozeTarget: "Christine Donougher",
-        pastelColor: "#fef3c7",
-        interval: 1, repetition: 0, easeFactor: 2.5, dueDate: new Date().toISOString(), box: 1
-      }
-    ];
+    // Distinct Palette Colors per Book
+    const BOOK_PALETTES = {
+      "Les Misérables": { accent: "#e11d48", glow: "rgba(225, 29, 72, 0.3)" },
+      "The Count of Monte Cristo": { accent: "#2563eb", glow: "rgba(37, 99, 235, 0.3)" },
+      "DEFAULT": { accent: "#f59e0b", glow: "rgba(245, 158, 11, 0.3)" }
+    };
 
-    /* --- STATE --- */
-    const STORAGE_KEY = 'ebbinghaus_literature_studio_v2';
     let cards = [];
-    let activeDeckFilter = 'ALL';
-    let activeStudyTab = 'RECALL';
-    let activeCard = null;
+    let filteredCards = [];
+    let currentIndex = 0;
+    let currentMode = 'feynman';
+    let currentBookFilter = 'ALL';
 
-    window.addEventListener('DOMContentLoaded', () => {
-      loadStateFromStorage();
-      updateHeaderStats();
-      renderBookshelf();
-      buildStudyQueue();
-      setupKeyboardShortcuts();
-    });
-
-    function loadStateFromStorage() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        try { cards = JSON.parse(raw); } catch(e) { cards = [...DEFAULT_DECKS]; }
+    window.onload = function() {
+      const saved = localStorage.getItem('gemini_flashcards_v3');
+      if (saved && JSON.parse(saved).length > 0) {
+        cards = JSON.parse(saved);
       } else {
-        cards = [...DEFAULT_DECKS];
-        saveStateToStorage();
+        cards = []; // Blank slate initialization
+      }
+      updateBookshelf();
+      populateBookSelect();
+      applyFilter();
+    };
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${mode}`).classList.add('active');
+
+      document.getElementById('mode-feynman-panel').classList.add('hidden');
+      document.getElementById('mode-cloze-panel').classList.add('hidden');
+      document.getElementById('mode-standard-panel').classList.add('hidden');
+      document.getElementById(`mode-${mode}-panel`).classList.remove('hidden');
+
+      document.getElementById('model-answer').classList.add('hidden');
+      renderCard();
+    }
+
+    function applyBookPalette(bookTitle) {
+      const palette = BOOK_PALETTES[bookTitle] || BOOK_PALETTES["DEFAULT"];
+      document.documentElement.style.setProperty('--accent-color', palette.accent);
+      document.documentElement.style.setProperty('--accent-glow', palette.glow);
+    }
+
+    function deleteDeck(bookTitle) {
+      if (confirm(`Are you sure you want to permanently delete all flashcards for "${bookTitle}"?`)) {
+        // Filter out all cards belonging to this book
+        cards = cards.filter(c => c.book !== bookTitle);
+        saveData();
+        
+        // Reset view
+        if (currentBookFilter === bookTitle) {
+          filterByBook('ALL');
+        } else {
+          updateBookshelf();
+          populateBookSelect();
+          applyFilter();
+        }
       }
     }
 
-    function saveStateToStorage() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
-      updateHeaderStats();
-    }
+    function updateBookshelf() {
+      const shelf = document.getElementById('bookshelf');
+      shelf.innerHTML = '';
 
-    function updateHeaderStats() {
-      const todayKey = new Date().toISOString().split('T')[0];
-      const history = JSON.parse(localStorage.getItem('review_history_log') || '{}');
-      document.getElementById('todayCounter').innerText = history[todayKey] || 0;
-
-      let streak = 0;
-      let checkDate = new Date();
-      while(true) {
-        let key = checkDate.toISOString().split('T')[0];
-        if (history[key] && history[key] > 0) {
-          streak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else { break; }
+      if (cards.length === 0) {
+        shelf.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding: 10px;">Bookshelf is empty. Import a JSON file to add books.</div>';
+        return;
       }
-      document.getElementById('streakCounter').innerText = streak;
-    }
 
-    function recordReviewAction() {
-      const todayKey = new Date().toISOString().split('T')[0];
-      const history = JSON.parse(localStorage.getItem('review_history_log') || '{}');
-      history[todayKey] = (history[todayKey] || 0) + 1;
-      localStorage.setItem('review_history_log', JSON.stringify(history));
-      updateHeaderStats();
-    }
-
-    /* --- RENDER SIDE-BY-SIDE BOOKSHELF DECK CARDS --- */
-    function renderBookshelf() {
-      const bookshelfEl = document.getElementById('bookshelf');
-      bookshelfEl.innerHTML = '';
+      // All Books Tile
+      const allTile = document.createElement('div');
+      allTile.className = `book-tile ${currentBookFilter === 'ALL' ? 'active' : ''}`;
+      allTile.onclick = () => filterByBook('ALL');
+      allTile.innerHTML = `<div class="book-fallback">ALL BOOKS</div>`;
+      shelf.appendChild(allTile);
 
       const bookMap = {};
       cards.forEach(c => {
-        if (!bookMap[c.book]) {
-          bookMap[c.book] = {
-            title: c.book,
-            coverImage: c.coverImage || '',
-            pastelColor: c.pastelColor || '#fde047',
-            total: 0,
-            due: 0,
-            mastered: 0
-          };
+        if (!bookMap[c.book]) bookMap[c.book] = c.coverImage;
+      });
+
+      Object.keys(bookMap).forEach(bookTitle => {
+        const coverUrl = bookMap[bookTitle];
+        const tile = document.createElement('div');
+        tile.className = `book-tile ${currentBookFilter === bookTitle ? 'active' : ''}`;
+        tile.onclick = () => filterByBook(bookTitle);
+
+        // Add Delete Button to this specific book tile
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-deck-btn';
+        delBtn.innerHTML = '×';
+        delBtn.title = `Delete ${bookTitle}`;
+        delBtn.onclick = (e) => {
+          e.stopPropagation(); // Prevent the tile click event from firing
+          deleteDeck(bookTitle);
+        };
+        tile.appendChild(delBtn);
+
+        // Add Image or Fallback text
+        const contentDiv = document.createElement('div');
+        contentDiv.style.width = '100%';
+        contentDiv.style.height = '100%';
+        if (coverUrl) {
+          contentDiv.innerHTML = `<img src="${coverUrl}" alt="${bookTitle}" onerror="this.outerHTML='<div class=\\'book-fallback\\'>${bookTitle}</div>'">`;
+        } else {
+          contentDiv.innerHTML = `<div class="book-fallback">${bookTitle}</div>`;
         }
-        bookMap[c.book].total++;
-        if (c.box >= 5) bookMap[c.book].mastered++;
-        if (new Date(c.dueDate || c.nextDueDate) <= new Date()) bookMap[c.book].due++;
+        tile.appendChild(contentDiv);
+        
+        shelf.appendChild(tile);
       });
-
-      Object.values(bookMap).forEach(book => {
-        const masteryPct = book.total > 0 ? Math.round((book.mastered / book.total) * 100) : 0;
-        const card = document.createElement('div');
-        card.className = `book-card ${activeDeckFilter === book.title ? 'selected-deck' : ''}`;
-        card.style.setProperty('--card-accent', book.pastelColor);
-
-        let coverHTML = book.coverImage
-          ? `<img src="${book.coverImage}" class="book-cover-thumb" alt="${book.title}" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'book-cover-fallback-thumb\\'>${book.title}</div>';">`
-          : `<div class="book-cover-fallback-thumb">${book.title}</div>`;
-
-        card.innerHTML = `
-          <div class="book-card-main">
-            ${coverHTML}
-            <div class="book-card-details">
-              <div class="book-card-title">${book.title}</div>
-              <div class="book-card-stats">${book.total} cards &bull; ${book.due} due</div>
-              <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#94a3b8; margin-top:auto;">
-                <span>Mastery Progress</span>
-                <span>${masteryPct}%</span>
-              </div>
-              <div class="progress-bar-container">
-                <div class="progress-bar-fill" style="width: ${masteryPct}%;"></div>
-              </div>
-            </div>
-          </div>
-          <div class="book-card-footer">
-            <div class="action-study-link" onclick="selectDeck('${escapeQuotes(book.title)}')">
-              <span>Click to Study</span> ➔
-            </div>
-            <div class="action-reset-link" onclick="resetDeckProgress('${escapeQuotes(book.title)}')">
-              🔄 Reset Progress
-            </div>
-          </div>
-        `;
-        bookshelfEl.appendChild(card);
-      });
-
-      document.getElementById('btnAllLiterature').classList.toggle('active', activeDeckFilter === 'ALL');
     }
 
-    function escapeQuotes(str) { return str.replace(/'/g, "\\'"); }
-
-    function selectDeck(bookTitle) {
-      activeDeckFilter = bookTitle;
-      document.getElementById('activeDeckLabel').innerText = bookTitle === 'ALL' ? 'All Literature Decks Combined' : bookTitle;
-      renderBookshelf();
-      buildStudyQueue();
-    }
-
-    function resetDeckProgress(bookTitle) {
-      if (!confirm(`Reset progress for "${bookTitle}" back to Day 1?`)) return;
-      cards.forEach(c => {
-        if (c.book === bookTitle) {
-          c.interval = 1; c.repetition = 0; c.easeFactor = 2.5; c.box = 1;
-          c.dueDate = new Date().toISOString();
-        }
+    function populateBookSelect() {
+      const select = document.getElementById('book-select');
+      select.innerHTML = '<option value="ALL">All Books Combined (Encompassing Study)</option>';
+      const books = [...new Set(cards.map(c => c.book))];
+      books.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = b;
+        select.appendChild(opt);
       });
-      saveStateToStorage();
-      renderBookshelf();
-      buildStudyQueue();
+      select.value = currentBookFilter;
     }
 
-    function buildStudyQueue() {
-      const now = new Date();
-      let filtered = activeDeckFilter === 'ALL' ? cards : cards.filter(c => c.book === activeDeckFilter);
+    function filterByBook(bookTitle) {
+      currentBookFilter = bookTitle;
+      document.getElementById('book-select').value = bookTitle;
+      applyBookPalette(bookTitle === 'ALL' ? 'DEFAULT' : bookTitle);
+      updateBookshelf();
+      applyFilter();
+    }
 
-      document.getElementById('cntBox1').innerText = filtered.filter(c => (c.box || 1) === 1).length;
-      document.getElementById('cntBox2').innerText = filtered.filter(c => c.box === 2).length;
-      document.getElementById('cntBox3').innerText = filtered.filter(c => c.box === 3).length;
-      document.getElementById('cntBox4').innerText = filtered.filter(c => c.box === 4).length;
-      document.getElementById('cntMastered').innerText = filtered.filter(c => (c.box || 1) >= 5).length;
-
-      const dueQueue = filtered.filter(c => new Date(c.dueDate || c.nextDueDate) <= now);
-      dueQueue.sort((a, b) => (a.box || 1) - (b.box || 1));
-
-      if (dueQueue.length > 0) {
-        activeCard = dueQueue[0];
-        renderCard();
+    function applyFilter() {
+      if (currentBookFilter === 'ALL') {
+        filteredCards = [...cards];
       } else {
-        activeCard = null;
-        renderEmptyQueue();
+        filteredCards = cards.filter(c => c.book === currentBookFilter);
       }
-    }
-
-    function setStudyTab(tabMode) {
-      activeStudyTab = tabMode;
-      document.getElementById('tabRecall').classList.toggle('active', tabMode === 'RECALL');
-      document.getElementById('tabFeynman').classList.toggle('active', tabMode === 'FEYNMAN');
-      document.getElementById('tabCloze').classList.toggle('active', tabMode === 'CLOZE');
+      currentIndex = 0;
+      updateBoxCounts();
       renderCard();
     }
 
     function renderCard() {
-      if (!activeCard) { renderEmptyQueue(); return; }
-
-      document.getElementById('answerBox').classList.remove('visible');
-      document.getElementById('ratingButtons').classList.remove('visible');
-      document.getElementById('btnReveal').style.display = 'block';
-
-      const bookPill = document.getElementById('cardBookTitle');
-      bookPill.innerText = activeCard.book;
-      bookPill.style.background = activeCard.pastelColor || '#fde047';
-
-      document.getElementById('cardIntervalBadge').innerText = `Interval: ${activeCard.interval || 1}d (Box ${activeCard.box || 1})`;
-
-      const promptEl = document.getElementById('cardPromptText');
-      const feynmanSection = document.getElementById('feynmanSection');
-
-      if (activeStudyTab === 'FEYNMAN') {
-        promptEl.innerText = activeCard.prompt;
-        feynmanSection.style.display = 'block';
-        document.getElementById('feynmanText').value = '';
-      } else if (activeStudyTab === 'CLOZE') {
-        feynmanSection.style.display = 'none';
-        if (activeCard.clozeTarget && activeCard.answer.includes(activeCard.clozeTarget)) {
-          promptEl.innerText = `[CLOZE MASKING]\n\n${activeCard.answer.replace(activeCard.clozeTarget, '[ _____ ]')}`;
-        } else {
-          promptEl.innerText = activeCard.prompt;
-        }
-      } else {
-        feynmanSection.style.display = 'none';
-        promptEl.innerText = activeCard.prompt;
-      }
-
-      document.getElementById('cardAnswerText').innerText = activeCard.answer;
-    }
-
-    function renderEmptyQueue() {
-      document.getElementById('cardBookTitle').innerText = 'Complete';
-      document.getElementById('cardBookTitle').style.background = '#e2e8f0';
-      document.getElementById('cardIntervalBadge').innerText = '-';
-      document.getElementById('cardPromptText').innerText = '🎉 No flashcards currently due for review!';
-      document.getElementById('feynmanSection').style.display = 'none';
-      document.getElementById('answerBox').classList.remove('visible');
-      document.getElementById('ratingButtons').classList.remove('visible');
-      document.getElementById('btnReveal').style.display = 'none';
-    }
-
-    function revealAnswer() {
-      if (!activeCard) return;
-      document.getElementById('answerBox').classList.add('visible');
-      document.getElementById('ratingButtons').classList.add('visible');
-      document.getElementById('btnReveal').style.display = 'none';
-    }
-
-    function rateCard(grade) {
-      if (!activeCard) return;
-
-      let interval = activeCard.interval || 1;
-      let repetition = activeCard.repetition || 0;
-      let easeFactor = activeCard.easeFactor || 2.5;
-      let box = activeCard.box || 1;
-
-      if (grade === 1) {
-        repetition = 0; interval = 1; box = 1;
-      } else {
-        if (repetition === 0) interval = 1;
-        else if (repetition === 1) interval = 6;
-        else interval = Math.round(interval * easeFactor);
-
-        if (grade === 2) { easeFactor = Math.max(1.3, easeFactor - 0.15); box = Math.min(5, box + 1); }
-        else if (grade === 3) { box = Math.min(5, box + 1); }
-        else if (grade === 4) { easeFactor += 0.15; interval = Math.round(interval * 1.3); box = Math.min(5, box + 1); }
-        repetition++;
-      }
-
-      const nextDue = new Date();
-      nextDue.setDate(nextDue.getDate() + interval);
-
-      activeCard.interval = interval;
-      activeCard.repetition = repetition;
-      activeCard.easeFactor = parseFloat(easeFactor.toFixed(2));
-      activeCard.box = box;
-      activeCard.dueDate = nextDue.toISOString();
-
-      recordReviewAction();
-      saveStateToStorage();
-      renderBookshelf();
-      buildStudyQueue();
-    }
-
-    /* --- IMPORT MODAL & PASTE HANDLER --- */
-    function openImportModal() {
-      document.getElementById('importModal').classList.add('active');
-      document.getElementById('jsonPasteInput').focus();
-    }
-
-    function closeImportModal() {
-      document.getElementById('importModal').classList.remove('active');
-    }
-
-    function handleUploadJsonClick() {
-      const pasteVal = document.getElementById('jsonPasteInput').value.trim();
-      if (!pasteVal) {
-        alert('Please paste your JSON text into the box before clicking Upload.');
+      if (filteredCards.length === 0) {
+        document.getElementById('card-prompt').textContent = "No cards available. Please import a deck.";
+        document.getElementById('card-book-title').textContent = "NO CARDS LOADED";
+        document.getElementById('card-box-label').textContent = "-";
+        document.getElementById('model-answer').classList.add('hidden');
         return;
       }
 
-      try {
-        const parsed = JSON.parse(pasteVal);
-        processImportedArray(parsed);
-        document.getElementById('jsonPasteInput').value = '';
-        closeImportModal();
-      } catch(e) {
-        alert('JSON Format Error: ' + e.message);
+      const card = filteredCards[currentIndex];
+      document.getElementById('card-book-title').textContent = card.book.toUpperCase();
+      document.getElementById('card-box-label').textContent = `LEITNER BOX ${card.box || 1}`;
+      document.getElementById('feynman-input').value = '';
+      document.getElementById('model-answer').classList.add('hidden');
+
+      if (currentMode === 'cloze' && card.clozeTarget) {
+        const clozePrompt = card.answer.replace(
+          new RegExp(card.clozeTarget, 'gi'),
+          `<span class="cloze-target">[ ${card.clozeTarget.length} letters ]</span>`
+        );
+        document.getElementById('card-prompt').innerHTML = `<strong>Context Question:</strong> ${card.prompt}<br><br><strong>Cloze Challenge:</strong> ${clozePrompt}`;
+      } else {
+        document.getElementById('card-prompt').textContent = card.prompt;
       }
+
+      applyBookPalette(card.book);
     }
 
-    function processImportedArray(items) {
-      const arr = Array.isArray(items) ? items : [items];
-      let added = 0;
+    function toggleAnswer() {
+      const card = filteredCards[currentIndex];
+      if (!card) return;
 
-      arr.forEach(item => {
-        if (item.prompt && item.answer) {
-          cards.push({
-            id: item.id || 'imported_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-            book: item.book || 'Imported Collection',
-            coverImage: item.coverImage || '',
-            pastelColor: item.pastelColor || '#fde047',
-            prompt: item.prompt,
-            answer: item.answer,
-            clozeTarget: item.clozeTarget || '',
-            tags: item.tags || [],
-            interval: item.interval || 1,
-            repetition: item.repetition || 0,
-            easeFactor: item.easeFactor || 2.5,
-            dueDate: item.dueDate || new Date().toISOString(),
-            box: item.box || 1
-          });
-          added++;
-        }
-      });
-
-      saveStateToStorage();
-      renderBookshelf();
-      buildStudyQueue();
-      alert(`Successfully added ${added} card(s) to your bookshelf!`);
+      const ansBox = document.getElementById('model-answer');
+      if (currentMode === 'cloze' && card.clozeTarget) {
+        ansBox.innerHTML = `<strong>Cloze Target:</strong> <span style="color:var(--accent-color); font-weight:bold;">${card.clozeTarget}</span><br><br><strong>Full Answer:</strong> ${card.answer}`;
+      } else {
+        ansBox.innerHTML = `<strong>Model Answer:</strong> ${card.answer}`;
+      }
+      ansBox.classList.toggle('hidden');
     }
 
-    /* --- EXPORT DATA --- */
-    function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cards, null, 2));
-      const anchor = document.createElement('a');
-      anchor.setAttribute("href", dataStr);
-      anchor.setAttribute("download", `ebbinghaus_studio_backup.json`);
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
+    // 4-Button Anki Logic
+    function rateCard(rating) {
+      if (filteredCards.length === 0) return;
+      const card = filteredCards[currentIndex];
+      if (!card.box) card.box = 1;
+
+      if (rating === 'again') {
+        card.box = 1; // Reset to Box 1
+      } else if (rating === 'hard') {
+        // Keeps current box
+      } else if (rating === 'good') {
+        card.box = Math.min(5, card.box + 1); // Advance 1 Box
+      } else if (rating === 'easy') {
+        card.box = Math.min(5, card.box + 2); // Jump 2 Boxes
+      }
+
+      saveData();
+      updateBoxCounts();
+      currentIndex = (currentIndex + 1) % filteredCards.length;
+      renderCard();
     }
 
-    /* --- VACATION FREEZE --- */
-    function openVacationModal() { document.getElementById('vacationModal').classList.add('active'); }
-    function closeVacationModal() { document.getElementById('vacationModal').classList.remove('active'); }
-
-    function applyVacationShift() {
-      const days = parseInt(document.getElementById('vacationDaysInput').value) || 0;
-      if (days <= 0) return;
-
+    function updateBoxCounts() {
+      const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, M: 0 };
       cards.forEach(c => {
-        const d = new Date(c.dueDate || new Date());
-        d.setDate(d.getDate() + days);
-        c.dueDate = d.toISOString();
+        const b = c.box || 1;
+        if (b >= 5) counts['M'] = (counts['M'] || 0) + 1;
+        else counts[b] = (counts[b] || 0) + 1;
       });
-
-      saveStateToStorage();
-      closeVacationModal();
-      renderBookshelf();
-      buildStudyQueue();
-      alert(`Shifted all due dates forward by ${days} days.`);
+      document.getElementById('b1-count').textContent = counts[1];
+      document.getElementById('b2-count').textContent = counts[2];
+      document.getElementById('b3-count').textContent = counts[3];
+      document.getElementById('b4-count').textContent = counts[4];
+      document.getElementById('b5-count').textContent = counts[5];
+      document.getElementById('bm-count').textContent = counts['M'];
     }
 
-    /* --- SEARCH --- */
-    function openSearchModal() { document.getElementById('searchModal').classList.add('active'); document.getElementById('searchInput').focus(); }
-    function closeSearchModal() { document.getElementById('searchModal').classList.remove('active'); }
+    function triggerImport() { document.getElementById('file-input').click(); }
 
-    function executeSearch() {
-      const q = document.getElementById('searchInput').value.toLowerCase().trim();
-      const res = document.getElementById('searchResults');
-      res.innerHTML = '';
-      if (!q) return;
-
-      cards.filter(c => c.prompt.toLowerCase().includes(q) || c.answer.toLowerCase().includes(q) || c.book.toLowerCase().includes(q))
-        .forEach(m => {
-          const div = document.createElement('div');
-          div.style.cssText = 'background:#0b1329; padding:0.75rem; border-radius:8px; border:1px solid #1e293b; display:flex; justify-content:space-between; align-items:center;';
-          div.innerHTML = `<div><div style="font-weight:700; font-size:0.9rem;">${m.prompt}</div><div style="font-size:0.75rem; color:#94a3b8;">📖 ${m.book}</div></div>
-            <button class="btn" style="padding:0.25rem 0.5rem; font-size:0.75rem;" onclick="openCardEditorModal('${m.id}')">Edit</button>`;
-          res.appendChild(div);
-        });
-    }
-
-    /* --- CARD EDITOR --- */
-    function openCardEditorModal(cardId = null) {
-      closeSearchModal();
-      document.getElementById('cardEditorModal').classList.add('active');
-
-      if (cardId) {
-        const c = cards.find(x => x.id === cardId);
-        if (!c) return;
-        document.getElementById('editorModalTitle').innerText = 'Edit Flashcard';
-        document.getElementById('editCardId').value = c.id;
-        document.getElementById('editBook').value = c.book;
-        document.getElementById('editCoverImage').value = c.coverImage || '';
-        document.getElementById('editPastelColor').value = c.pastelColor || '#fde047';
-        document.getElementById('editPrompt').value = c.prompt;
-        document.getElementById('editAnswer').value = c.answer;
-        document.getElementById('editClozeTarget').value = c.clozeTarget || '';
-        document.getElementById('btnDeleteCard').style.display = 'block';
-      } else {
-        document.getElementById('editorModalTitle').innerText = 'Create Flashcard';
-        document.getElementById('cardForm').reset();
-        document.getElementById('editCardId').value = '';
-        document.getElementById('btnDeleteCard').style.display = 'none';
-      }
-    }
-
-    function editCurrentCard() { if (activeCard) openCardEditorModal(activeCard.id); }
-    function closeCardEditorModal() { document.getElementById('cardEditorModal').classList.remove('active'); }
-
-    function saveCardForm(e) {
-      e.preventDefault();
-      const id = document.getElementById('editCardId').value;
-
-      if (id) {
-        const c = cards.find(x => x.id === id);
-        if (c) {
-          c.book = document.getElementById('editBook').value.trim();
-          c.coverImage = document.getElementById('editCoverImage').value.trim();
-          c.pastelColor = document.getElementById('editPastelColor').value;
-          c.prompt = document.getElementById('editPrompt').value.trim();
-          c.answer = document.getElementById('editAnswer').value.trim();
-          c.clozeTarget = document.getElementById('editClozeTarget').value.trim();
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          const newCards = Array.isArray(imported) ? imported : [imported];
+          // Append new cards to existing cards rather than overwriting
+          cards = [...cards, ...newCards];
+          saveData();
+          updateBookshelf();
+          populateBookSelect();
+          applyFilter();
+        } catch (err) {
+          alert("Invalid JSON file format.");
         }
-      } else {
-        cards.push({
-          id: 'card_' + Date.now(),
-          book: document.getElementById('editBook').value.trim(),
-          coverImage: document.getElementById('editCoverImage').value.trim(),
-          pastelColor: document.getElementById('editPastelColor').value,
-          prompt: document.getElementById('editPrompt').value.trim(),
-          answer: document.getElementById('editAnswer').value.trim(),
-          clozeTarget: document.getElementById('editClozeTarget').value.trim(),
-          interval: 1, repetition: 0, easeFactor: 2.5, dueDate: new Date().toISOString(), box: 1
-        });
+      };
+      reader.readAsText(file);
+      // Reset input value so the same file can be selected again if needed
+      event.target.value = '';
+    }
+
+    function saveData() { localStorage.setItem('gemini_flashcards_v3', JSON.stringify(cards)); }
+
+    function exportData() {
+      if (cards.length === 0) {
+        alert("No data to export.");
+        return;
       }
-
-      saveStateToStorage();
-      closeCardEditorModal();
-      renderBookshelf();
-      buildStudyQueue();
+      const blob = new Blob([JSON.stringify(cards, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "flashcards_backup.json";
+      a.click();
     }
 
-    function deleteCurrentEditingCard() {
-      const id = document.getElementById('editCardId').value;
-      if (!id) return;
-      if (confirm('Delete this card?')) {
-        cards = cards.filter(c => c.id !== id);
-        saveStateToStorage();
-        closeCardEditorModal();
-        renderBookshelf();
-        buildStudyQueue();
+    function resetApp() {
+      if (confirm("WARNING: This will delete ALL flashcards from all books in your browser storage. Proceed?")) {
+        localStorage.removeItem('gemini_flashcards_v3');
+        cards = [];
+        saveData();
+        updateBookshelf();
+        populateBookSelect();
+        applyFilter();
       }
-    }
-
-    /* --- TEXT-TO-SPEECH & KEYBOARD SHORTCUTS --- */
-    function speakText() {
-      if (!activeCard || !('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(`${activeCard.prompt}. Answer: ${activeCard.answer}`);
-      window.speechSynthesis.speak(u);
-    }
-
-    function setupKeyboardShortcuts() {
-      document.addEventListener('keydown', (e) => {
-        if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
-        if (e.code === 'Space') { e.preventDefault(); revealAnswer(); }
-        else if (['1','2','3','4'].includes(e.key)) { rateCard(parseInt(e.key)); }
-        else if (e.key === 'Escape') { closeSearchModal(); closeVacationModal(); closeCardEditorModal(); closeImportModal(); }
-      });
     }
   </script>
 </body>
