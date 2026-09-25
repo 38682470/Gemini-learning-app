@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gemini Learning App v3.1</title>
+  <title>Gemini Learning App v3.2</title>
   <style>
     :root {
       --bg-main: #0f172a;
@@ -75,7 +75,7 @@
       border: 2px solid transparent;
       background: var(--bg-inner);
       cursor: pointer;
-      overflow: visible;
+      overflow: visible; /* Allows delete button to overlap */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -127,6 +127,7 @@
       z-index: 10;
       opacity: 0;
       transition: opacity 0.2s ease, transform 0.1s ease;
+      padding: 0;
     }
 
     .book-tile:hover .delete-deck-btn { opacity: 1; }
@@ -283,13 +284,34 @@
     .btn-good:hover  { background: #15803d; }
     .btn-easy:hover  { background: #1d4ed8; }
 
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-content {
+      background: var(--bg-card);
+      padding: 24px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
   <header>
-    <h1 id="app-title">Gemini Learning App v3.1</h1>
+    <h1 id="app-title">Gemini Learning App v3.2</h1>
     <p>Multi-Book Reader • 4-Button Anki Engine & Multi-Technique Tabs</p>
   </header>
 
@@ -318,7 +340,6 @@
       <button class="btn-action" onclick="triggerImport()">+ Bulk Import</button>
       <button onclick="exportData()">Export</button>
       <button onclick="resetApp()">Delete All Data</button>
-      <input type="file" id="file-input" class="hidden" accept=".json" onchange="importJSON(event)">
     </div>
   </div>
 
@@ -337,7 +358,7 @@
         <span id="card-box-label">-</span>
       </div>
 
-      <div class="card-prompt" id="card-prompt">Please import a JSON file to begin.</div>
+      <div class="card-prompt" id="card-prompt">Please import JSON data to begin.</div>
 
       <!-- Mode 1: Feynman -->
       <div id="mode-feynman-panel">
@@ -368,6 +389,19 @@
         <button class="btn-hard" onclick="rateCard('hard')">Hard<br><small>(Stay in Box)</small></button>
         <button class="btn-good" onclick="rateCard('good')">Good<br><small>(+1 Box)</small></button>
         <button class="btn-easy" onclick="rateCard('easy')">Easy<br><small>(+2 Boxes)</small></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JSON Text Import Modal -->
+  <div id="import-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 10px; color: var(--accent-color);">Bulk Import JSON</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Paste your raw JSON flashcard data below:</p>
+      <textarea id="import-textarea" style="height: 200px; font-family: monospace; font-size: 0.8rem; margin-bottom: 15px;"></textarea>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button onclick="closeImportModal()" style="background: transparent; border: 1px solid var(--border-color);">Cancel</button>
+        <button class="btn-action" onclick="processImport()">Import Cards</button>
       </div>
     </div>
   </div>
@@ -440,7 +474,7 @@
       shelf.innerHTML = '';
 
       if (cards.length === 0) {
-        shelf.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding: 10px;">Bookshelf is empty. Import a JSON file to add books.</div>';
+        shelf.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding: 10px;">Bookshelf is empty. Paste JSON data to add books.</div>';
         return;
       }
 
@@ -598,29 +632,33 @@
       document.getElementById('bm-count').textContent = counts['M'];
     }
 
-    function triggerImport() { document.getElementById('file-input').click(); }
+    // Modal Import Logic
+    function triggerImport() { 
+      document.getElementById('import-textarea').value = '';
+      document.getElementById('import-modal').classList.remove('hidden'); 
+    }
 
-    function importJSON(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          const newCards = Array.isArray(imported) ? imported : [imported];
-          // Append new cards to existing cards rather than overwriting
-          cards = [...cards, ...newCards];
-          saveData();
-          updateBookshelf();
-          populateBookSelect();
-          applyFilter();
-        } catch (err) {
-          alert("Invalid JSON file format.");
-        }
-      };
-      reader.readAsText(file);
-      // Reset input value so the same file can be selected again if needed
-      event.target.value = '';
+    function closeImportModal() {
+      document.getElementById('import-modal').classList.add('hidden');
+    }
+
+    function processImport() {
+      const text = document.getElementById('import-textarea').value;
+      if (!text.trim()) return;
+
+      try {
+        const imported = JSON.parse(text);
+        const newCards = Array.isArray(imported) ? imported : [imported];
+        // Append new cards to existing cards rather than overwriting
+        cards = [...cards, ...newCards];
+        saveData();
+        updateBookshelf();
+        populateBookSelect();
+        applyFilter();
+        closeImportModal();
+      } catch (err) {
+        alert("Invalid JSON format. Please ensure you pasted valid, raw JSON code.");
+      }
     }
 
     function saveData() { localStorage.setItem('gemini_flashcards_v3', JSON.stringify(cards)); }
