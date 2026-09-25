@@ -646,7 +646,7 @@
   {
     "id": "lm-001",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Who is the author of Les Misérables, and who produced the acclaimed 2013 translation for Penguin Classics referenced in this flashcard set?",
     "answer": "Victor Hugo wrote Les Misérables, and the 2013 unabridged Penguin Classics edition was translated by Christine Donougher.",
@@ -661,7 +661,7 @@
   {
     "id": "lm-002",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How many major volumes (parts) make up Victor Hugo's Les Misérables, and what are their titles in sequential order?",
     "answer": "The novel is divided into 5 volumes: 1) Fantine, 2) Cosette, 3) Marius, 4) The Idyll in the Rue Plumet and the Epic in the Rue Saint-Denis, and 5) Jean Valjean.",
@@ -676,7 +676,7 @@
   {
     "id": "lm-003",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "In what year was Jean Valjean originally arrested, what was his crime, and why did he commit it?",
     "answer": "In 1796, Jean Valjean was arrested for stealing a loaf of bread from a baker to feed his widowed sister and her seven starving children.",
@@ -691,7 +691,7 @@
   {
     "id": "lm-004",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "What was Jean Valjean's initial sentence, and how long did he actually serve in the galleys of Toulon due to escape attempts?",
     "answer": "His original sentence was 5 years of hard labor, but four failed escape attempts extended his sentence to 19 years before his release in October 1815.",
@@ -706,7 +706,7 @@
   {
     "id": "lm-005",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "What were Jean Valjean's two prisoner identification numbers during his imprisonment at Toulon and later at Brest?",
     "answer": "His initial convict identification number was 24601 at Toulon, and later 9430 following his second arrest.",
@@ -721,7 +721,7 @@
   {
     "id": "lm-006",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "What is the full name and title of Bishop Myriel of Digne, and how does he spark Jean Valjean's moral transformation?",
     "answer": "Bishop Charles-François-Bienvenu Myriel (Monseigneur Bienvenu) saves Valjean from police after Valjean steals his silver, giving him two additional silver candlesticks and claiming he has bought Valjean's soul for God.",
@@ -736,7 +736,7 @@
   {
     "id": "lm-007",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "What final act of theft does Jean Valjean commit shortly after leaving Bishop Myriel, triggering his intense moral awakening?",
     "answer": "He steals a 40-sou (two-franc) coin from a young Savoyard chimney sweep named Petit-Gervais, an act that causes him immense remorse and leads him to vow to spend his life doing good.",
@@ -751,7 +751,7 @@
   {
     "id": "lm-008",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Under what alias does Jean Valjean become a wealthy industrialist and mayor in Montreuil-sur-Mer, and what manufacturing innovation creates his wealth?",
     "answer": "He adopts the identity of Monsieur Madeleine and revolutionizes the local manufacturing process for jet beads and black glass trinkets.",
@@ -766,7 +766,7 @@
   {
     "id": "lm-009",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How does Monsieur Madeleine demonstrate extraordinary physical strength in Montreuil-sur-Mer, and why does this arouse Inspector Javert's suspicion?",
     "answer": "Madeleine single-handedly lifts a heavy cart off Father Fauchelevent; Javert witnesses this and remembers that only one convict in Toulon possessed such strength: Jean Valjean.",
@@ -781,7 +781,7 @@
   {
     "id": "lm-010",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg", 
     "pastelColor": "#fde047",
     "prompt": "Who is Fantine's wealthy student lover who abandons her in Paris, and what sacrifices does she make to pay for Cosette's upkeep?",
     "answer": "Félix Tholomyès abandons Fantine. To meet the extortionate demands of the Thénardiers, Fantine sells her hair, front teeth, and eventually turns to prostitution.",
@@ -796,7 +796,7 @@
   {
     "id": "lm-011",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Why does Jean Valjean travel to the court in Arras to interrupt the trial of Champmathieu?",
     "answer": "Champmathieu is an innocent man mistaken for Jean Valjean and facing lifelong hard labor; Valjean reveals his identity in open court to save him.",
@@ -811,7 +811,7 @@
   {
     "id": "lm-012",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Where was Inspector Javert born, and what core worldview shapes his uncompromising enforcement of the law?",
     "answer": "Javert was born inside a prison to a fortune-teller mother and a galley slave father; he believes law and order are absolute and criminals are irredeemable.",
@@ -826,7 +826,7 @@
   {
     "id": "lm-013",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "What unprecedented act does Sister Simplice perform when Inspector Javert arrives to arrest Jean Valjean following Fantine's death?",
     "answer": "Sister Simplice, a nun famous for never having told a lie in her life, lies directly to Javert twice to protect Valjean.",
@@ -841,7 +841,7 @@
   {
     "id": "lm-014",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "On what date did the Battle of Waterloo take place according to Hugo's historical chapter, and how does it connect Thénardier to Colonel Pontmercy?",
     "answer": "Fought on June 18, 1815; Thénardier was looting bodies on the battlefield when he inadvertently revived the wounded Colonel Pontmercy, who mistakenly believed Thénardier had saved his life.",
@@ -856,7 +856,7 @@
   {
     "id": "lm-015",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Where do the Thénardiers operate their inn in Volume 1, what are the names of their daughters, and how do they treat Cosette?",
     "answer": "They operate an inn in Montfermeil. Their daughters are Éponine and Azelma. They abuse Cosette, using her as an unpaid, overworked servant.",
@@ -871,7 +871,7 @@
   {
     "id": "lm-016",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "In what month and year does Jean Valjean rescue Cosette from the Thénardiers in Montfermeil?",
     "answer": "December 1823 (Christmas Eve/Day 1823), after escaping imprisonment on the French warship Orion.",
@@ -886,7 +886,7 @@
   {
     "id": "lm-017",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How do Jean Valjean and Cosette escape Inspector Javert's midnight chase through Paris, and where do they find permanent refuge?",
     "answer": "Valjean scales a wall into the Convent of Petit-Picpus, where Father Fauchelevent works as a gardener and helps disguise Valjean as his assistant brother Ultime Fauchelevent.",
@@ -901,7 +901,7 @@
   {
     "id": "lm-018",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Who is Monsieur Gillenormand, and why does he separate young Marius from his father, Colonel Georges Pontmercy?",
     "answer": "M. Gillenormand is Marius's wealthy, 90-year-old monarchist grandfather; he detests Colonel Pontmercy's loyalty to Napoleon and threatens to disinherit Marius if he contacts his father.",
@@ -916,7 +916,7 @@
   {
     "id": "lm-019",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How does Marius discover the truth about his father's love and loyalty after Colonel Pontmercy dies?",
     "answer": "Marius meets Father Mabeuf at church, who reveals that Colonel Pontmercy secretly attended mass every week to watch Marius from behind a pillar.",
@@ -931,7 +931,7 @@
   {
     "id": "lm-020",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "What French linguistic pun forms the name 'Friends of the ABC' (Les Amis de l'A.B.C.), and what is their political objective?",
     "answer": "'A.B.C.' sounds like 'abaissés' ('the humiliated' or 'the downtrodden'). They are a republican student society plotting a revolutionary uprising to restore the Republic.",
@@ -946,7 +946,7 @@
   {
     "id": "lm-021",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How do Enjolras and Combeferre complement each other as the primary figures of the Friends of the ABC?",
     "answer": "Enjolras represents the fierce, uncompromising logic of revolution and armed battle, whereas Combeferre represents the humanistic philosophy, education, and social progress of the ideal Republic.",
@@ -961,7 +961,7 @@
   {
     "id": "lm-022",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "What is Grantaire's role among the Friends of the ABC, and what is his attitude toward political idealism?",
     "answer": "Grantaire is a skeptical, alcoholic student who disbelieves in political causes, but stays with the group due to his deep devotion to Enjolras.",
@@ -976,7 +976,7 @@
   {
     "id": "lm-023",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Name three prominent members of the Friends of the ABC alongside Enjolras, Combeferre, and Grantaire, noting their distinctive traits.",
     "answer": "Courfeyrac (the warm, charismatic center of the group), Feuilly (a self-taught fan-maker and internationalist advocate for Poland), and Jean Prouvaire (a sensitive romantic poet).",
@@ -991,7 +991,7 @@
   {
     "id": "lm-024",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Under what alias do the Thénardiers live in the Gorbeau tenement next door to Marius, and what extortion scheme do they plot against M. Leblanc (Valjean)?",
     "answer": "They live under the name Jondrette; Thénardier lures M. Leblanc into a trap with a gang of criminals to extort 200,000 francs until Javert raids the room.",
@@ -1006,7 +1006,7 @@
   {
     "id": "lm-025",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How does Éponine demonstrate her unrequited love for Marius Pontmercy in Volumes 3 and 4?",
     "answer": "She locates Cosette's address for Marius, guards Valjean's house from her father's gang, leads Marius to the barricade so they can die together, and intercepts a bullet intended for Marius.",
@@ -1021,7 +1021,7 @@
   {
     "id": "lm-026",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "What temporary nicknames does Marius assign to Cosette and Jean Valjean while secretly watching them at the Luxembourg Gardens?",
     "answer": "He calls Cosette 'Mademoiselle Lanoire' (for her black mourning clothes) and Valjean 'Monsieur Leblanc' (for his white hair).",
@@ -1036,7 +1036,7 @@
   {
     "id": "lm-027",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "What historical event triggers the June Rebellion of June 5-6, 1832 in Paris?",
     "answer": "The funeral procession of General Jean Maximilien Lamarque, a popular former Napoleonic general and vocal advocate for the working class.",
@@ -1051,7 +1051,7 @@
   {
     "id": "lm-028",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Where is the central revolutionary barricade constructed in Volume 4, and at what establishment is it anchored?",
     "answer": "It is built in the Rue de la Chanvrerie, anchored around Father Hucheloup's Corinthe wine-shop.",
@@ -1066,7 +1066,7 @@
   {
     "id": "lm-029",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How does the elderly book collector Father Mabeuf die at the barricade, inspiring the insurgents?",
     "answer": "He climbs to the top of the barricade under heavy enemy fire to re-raise the red flag, suffering fatal gunshots.",
@@ -1081,7 +1081,7 @@
   {
     "id": "lm-030",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How does Gavroche die during the siege of the barricade, and what action is he performing when shot?",
     "answer": "He dances out in front of the barricade singing songs while collecting live ammunition cartridges from the pouches of dead soldiers.",
@@ -1096,7 +1096,7 @@
   {
     "id": "lm-031",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "When Inspector Javert is captured as a police spy at the barricade, what does Jean Valjean do when granted execution rights?",
     "answer": "Valjean takes Javert into a side alley, fires a shot into the air to fake his death, and frees Javert, providing him his home address.",
@@ -1111,7 +1111,7 @@
   {
     "id": "lm-032",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How do Enjolras and Grantaire meet their end together when the barricade falls?",
     "answer": "Enjolras is trapped upstairs in the Corinthe tavern; Grantaire awakens, joins him, holds his hand, shouts 'Vive la République!', and they are executed together by firing squad.",
@@ -1126,7 +1126,7 @@
   {
     "id": "lm-033",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How does Jean Valjean carry the severely wounded Marius to safety after the fall of the barricade?",
     "answer": "Valjean carries the unconscious Marius on his back through miles of dark, decaying underground Paris sewers (les égouts).",
@@ -1141,7 +1141,7 @@
   {
     "id": "lm-034",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Who encounters Jean Valjean at the locked sewer outlet gate, and what piece of evidence does he secretly retain from Marius?",
     "answer": "Thénardier unlocks the sewer gate for payment believing Valjean is a murderer; he secretly tears off a strip of Marius's bloodstained coat to identify the victim later.",
@@ -1156,7 +1156,7 @@
   {
     "id": "lm-035",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Where and why does Inspector Javert end his own life after releasing Jean Valjean?",
     "answer": "Javert leaps off the Pont-au-Change into the Seine because he cannot reconcile his absolute duty to legal justice with his moral gratitude to a convict.",
@@ -1171,7 +1171,7 @@
   {
     "id": "lm-036",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Why does Marius initially distance Jean Valjean from Cosette after their marriage, and how is the truth revealed?",
     "answer": "Valjean confesses his convict past, and Marius assumes Valjean killed Javert and stole Madeleine's fortune; Thénardier later tries to blackmail Marius, accidentally proving Valjean saved Marius's life.",
@@ -1186,7 +1186,7 @@
   {
     "id": "lm-037",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "What becomes of M. Thénardier after receiving a sum of money from Marius at the conclusion of the novel?",
     "answer": "Marius pays him to leave France; Thénardier moves to America with his daughter Azelma and becomes a slave trader.",
@@ -1201,7 +1201,7 @@
   {
     "id": "lm-038",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "What are Jean Valjean's final words of counsel to Cosette and Marius, and what marks his grave in Père Lachaise Cemetery?",
     "answer": "He instructs them to love each other and place God above all else. He is buried under an unmarked, plain stone slab in Père Lachaise with a simple four-line stanza in pencil.",
@@ -1216,7 +1216,7 @@
   {
     "id": "lm-039",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Why does Victor Hugo dedicate an extensive digression in Volume 4 to 'Argot' (underground cant/slang)?",
     "answer": "Hugo views Argot as the language of social misery and criminal desperation, arguing that language reflects human suffering and requires moral enlightenment.",
@@ -1231,7 +1231,7 @@
   {
     "id": "lm-040",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How does the conflict between Javert and Jean Valjean illustrate the overarching thematic opposition in the novel?",
     "answer": "It contrasts rigid human law and legal punishment (Javert) against divine grace, spiritual redemption, and active love for humanity (Valjean).",
@@ -1246,7 +1246,7 @@
   {
     "id": "lm-041",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "Who is Lieutenant Théodule Gillenormand, and how does M. Gillenormand use him in relation to Marius?",
     "answer": "Théodule is Marius's grand-cousin, a cavalry officer whom M. Gillenormand attempts to favor as a substitute grandson after falling out with Marius.",
@@ -1261,7 +1261,7 @@
   {
     "id": "lm-042",
     "book": "Les Misérables",
-    "coverImage": "les-miserables.jpeg",
+    "coverImage": "lesmiserables.jpeg",
     "pastelColor": "#fde047",
     "prompt": "How is the dual meaning of the French title 'Les Misérables' explained in Christine Donougher's Penguin Classics edition?",
     "answer": "The French title refers simultaneously to 'the wretched/poor' (innocent victims of poverty) and 'the villains/scoundrels' (outcasts created by social injustice).",
