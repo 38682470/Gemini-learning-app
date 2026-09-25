@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ebbinghaus Literature Studio App</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-inner: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --accent-color: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      color: var(--accent-color);
+      font-size: 2rem;
+      margin-bottom: 4px;
+      transition: color 0.3s ease;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Bookshelf Gallery */
+    .bookshelf-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .bookshelf-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .bookshelf-grid {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .book-tile {
+      flex: 0 0 120px;
+      height: 160px;
+      border-radius: 8px;
+      border: 3px solid var(--border-color);
+      background: var(--bg-inner);
+      cursor: pointer;
+      overflow: visible;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .book-tile:hover { transform: translateY(-3px); }
+
+    .book-tile.active {
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    .book-tile img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .book-fallback {
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 4px;
+    }
+
+    /* Delete Deck Button */
+    .delete-deck-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: #dc2626;
+      color: white;
+      border: 2px solid var(--bg-card);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.1s ease;
+      padding: 0;
+    }
+
+    .book-tile:hover .delete-deck-btn { opacity: 1; }
+    .delete-deck-btn:hover { background-color: #b91c1c; transform: scale(1.1); }
+    .delete-deck-btn:active { transform: scale(0.9); }
+
+    /* Leitner Boxes Display */
+    .leitner-bar {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .box-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .box-card .box-label { font-size: 0.65rem; color: var(--text-muted); font-weight: bold; }
+    .box-card .box-count { font-size: 1.3rem; font-weight: bold; color: var(--accent-color); }
+
+    /* Controls Bar */
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    select, button {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button.btn-action { background: var(--accent-color); color: #000; border: none; }
+
+    /* Technique Tabs */
+    .technique-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-card);
+      padding: 6px;
+      border-radius: 10px 10px 0 0;
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--accent-color);
+      color: #000;
+    }
+
+    /* Main Card Display */
+    .card-container {
+      background: var(--bg-card);
+      border: 2px solid var(--accent-color);
+      border-radius: 0 0 12px 12px;
+      padding: 24px;
+      min-height: 340px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 6px 24px var(--accent-glow);
+      transition: border-color 0.3s ease;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: bold;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .card-prompt {
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    textarea, input[type="text"] {
+      width: 100%;
+      background: var(--bg-inner);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-main);
+      padding: 12px;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+
+    textarea {
+      height: 100px;
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+
+    .model-answer-box {
+      background: var(--bg-inner);
+      border-left: 4px solid var(--accent-color);
+      padding: 14px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+
+    .cloze-target {
+      background: var(--accent-color);
+      color: #000;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    /* 4-Button Anki Rating Bar */
+    .anki-rating-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-again { background: #dc2626; color: #fff; border: none; }
+    .btn-hard  { background: #ea580c; color: #fff; border: none; }
+    .btn-good  { background: #16a34a; color: #fff; border: none; }
+    .btn-easy  { background: #2563eb; color: #fff; border: none; }
+
+    .btn-again:hover { background: #b91c1c; }
+    .btn-hard:hover  { background: #c2410c; }
+    .btn-good:hover  { background: #15803d; }
+    .btn-easy:hover  { background: #1d4ed8; }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-content {
+      background: var(--bg-card);
+      padding: 24px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 650px;
+      max-height: 85vh;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .card-list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      gap: 10px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 id="app-title">Ebbinghaus Literature Studio App</h1>
+    <p>Multi-Book Reader • 4-Button Anki Engine & Multi-Technique Tabs</p>
+  </header>
+
+  <!-- Bookshelf -->
+  <div class="bookshelf-wrapper">
+    <div class="bookshelf-title">Bookshelf Collection</div>
+    <div class="bookshelf-grid" id="bookshelf"></div>
+  </div>
+
+  <!-- Leitner Boxes Bar -->
+  <div class="leitner-bar">
+    <div class="box-card"><div class="box-label">BOX 1</div><div class="box-count" id="b1-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 2</div><div class="box-count" id="b2-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 3</div><div class="box-count" id="b3-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 4</div><div class="box-count" id="b4-count">0</div></div>
+    <div class="box-card"><div class="box-label">BOX 5</div><div class="box-count" id="b5-count">0</div></div>
+    <div class="box-card"><div class="box-label">MASTERED</div><div class="box-count" id="bm-count">0</div></div>
+  </div>
+
+  <!-- Controls Bar -->
+  <div class="controls-bar">
+    <select id="book-select" onchange="filterByBook(this.value)">
+      <option value="ALL">All Books Combined (Encompassing Study)</option>
+    </select>
+    <div>
+      <button class="btn-action" onclick="triggerImport()">+ Bulk Import</button>
+      <button onclick="openCardManager()">Manage Cards</button>
+      <button onclick="exportData()">Export</button>
+      <button onclick="resetApp()">Delete All Data</button>
+    </div>
+  </div>
+
+  <!-- 3 Study Technique Tabs -->
+  <div class="technique-tabs">
+    <button class="tab-btn active" id="tab-feynman" onclick="setMode('feynman')">Feynman Technique</button>
+    <button class="tab-btn" id="tab-cloze" onclick="setMode('cloze')">Cloze Technique</button>
+    <button class="tab-btn" id="tab-standard" onclick="setMode('standard')">Standard Q&A</button>
+  </div>
+
+  <!-- Flashcard Card Display -->
+  <div class="card-container">
+    <div>
+      <div class="card-meta">
+        <span id="card-book-title">NO CARDS LOADED</span>
+        <span id="card-counter">Q0/0</span>
+        <span id="card-box-label">-</span>
+      </div>
+
+      <div class="card-prompt" id="card-prompt">Please import JSON data to begin.</div>
+
+      <!-- Mode 1: Feynman -->
+      <div id="mode-feynman-panel">
+        <textarea id="feynman-input" placeholder="Explain this concept in simple terms as if teaching someone else..."></textarea>
+        <button onclick="toggleAnswer()" style="width:100%;">Compare with Model Answer</button>
+      </div>
+
+      <!-- Mode 2: Cloze -->
+      <div id="mode-cloze-panel" class="hidden">
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:10px;">Recall the missing target phrase, then reveal:</p>
+        <button onclick="toggleAnswer()" style="width:100%;">Reveal Blank Target</button>
+      </div>
+
+      <!-- Mode 3: Standard -->
+      <div id="mode-standard-panel" class="hidden">
+        <button onclick="toggleAnswer()" style="width:100%;">Show Model Answer</button>
+      </div>
+
+      <!-- Model Answer -->
+      <div id="model-answer" class="model-answer-box hidden"></div>
+    </div>
+
+    <!-- 4-Button Anki Rating Bar -->
+    <div>
+      <div style="font-size: 0.7rem; text-align: center; color: var(--text-muted); margin-bottom: 6px; font-weight: bold; letter-spacing: 0.5px;">RATE YOUR RECALL (ANKI SM-2)</div>
+      <div class="anki-rating-bar">
+        <button class="btn-again" onclick="rateCard('again')">Again<br><small>(Reset Box 1)</small></button>
+        <button class="btn-hard" onclick="rateCard('hard')">Hard<br><small>(Stay in Box)</small></button>
+        <button class="btn-good" onclick="rateCard('good')">Good<br><small>(+1 Box)</small></button>
+        <button class="btn-easy" onclick="rateCard('easy')">Easy<br><small>(+2 Boxes)</small></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JSON Text Import Modal -->
+  <div id="import-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 10px; color: var(--accent-color);">Bulk Import JSON</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Paste your raw JSON flashcard data below:</p>
+      <textarea id="import-textarea" style="height: 200px; font-family: monospace; font-size: 0.8rem; margin-bottom: 15px;"></textarea>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button onclick="closeImportModal()" style="background: transparent; border: 1px solid var(--border-color);">Cancel</button>
+        <button class="btn-action" onclick="processImport()">Import Cards</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Manager Modal -->
+  <div id="card-manager-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 10px; color: var(--accent-color);" id="manager-title">Manage Cards</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Edit or delete individual cards across your collection:</p>
+      <div id="card-manager-list" style="max-height: 350px; overflow-y: auto; margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 6px;"></div>
+      <div style="display: flex; gap: 10px; justify-content: space-between;">
+        <button class="btn-action" onclick="openAddCardModal()">+ Add New Card</button>
+        <button onclick="closeCardManager()" style="background: transparent; border: 1px solid var(--border-color);">Close Manager</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Single Card Editor Modal -->
+  <div id="edit-card-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 10px; color: var(--accent-color);" id="edit-modal-title">Edit Card</h3>
+      <input type="hidden" id="edit-card-index">
+      <div style="margin-bottom: 10px;">
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Book Title</label>
+        <input type="text" id="edit-card-book" placeholder="e.g. Les Misérables">
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Question / Prompt</label>
+        <textarea id="edit-card-prompt" style="height: 70px;"></textarea>
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Answer / Model Answer</label>
+        <textarea id="edit-card-answer" style="height: 70px;"></textarea>
+      </div>
+      <div style="margin-bottom: 15px;">
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Cloze Target (Optional)</label>
+        <input type="text" id="edit-card-cloze" placeholder="Target keyword for cloze mode">
+      </div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button onclick="closeEditModal()" style="background: transparent; border: 1px solid var(--border-color);">Cancel</button>
+        <button class="btn-action" onclick="saveCardEdit()">Save Card</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Distinct Pastel Palettes per Book
+    const PASTEL_PALETTES = [
+      { bg: '#fdf2f8', border: '#f472b6', accent: '#db2777', text: '#831843' }, // Pink
+      { bg: '#f0fdf4', border: '#4ade80', accent: '#16a34a', text: '#14532d' }, // Green
+      { bg: '#eff6ff', border: '#60a5fa', accent: '#2563eb', text: '#1e3a8a' }, // Blue
+      { bg: '#fef3c7', border: '#fbbf24', accent: '#d97706', text: '#78350f' }, // Amber
+      { bg: '#f5f3ff', border: '#a78bfa', accent: '#7c3aed', text: '#4c1d95' }, // Purple
+      { bg: '#fff7ed', border: '#fb923c', accent: '#ea580c', text: '#7c2d12' }  // Orange
+    ];
+
+    function getBookPalette(bookTitle) {
+      let hash = 0;
+      for (let i = 0; i < bookTitle.length; i++) {
+        hash = bookTitle.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const index = Math.abs(hash) % PASTEL_PALETTES.length;
+      return PASTEL_PALETTES[index];
+    }
+
+    let cards = [];
+    let filteredCards = [];
+    let currentIndex = 0;
+    let currentMode = 'feynman';
+    let currentBookFilter = 'ALL';
+
+    window.onload = function() {
+      const saved = localStorage.getItem('gemini_flashcards_v3');
+      if (saved && JSON.parse(saved).length > 0) {
+        cards = JSON.parse(saved);
+      } else {
+        cards = [];
+      }
+      updateBookshelf();
+      populateBookSelect();
+      applyFilter();
+    };
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${mode}`).classList.add('active');
+
+      document.getElementById('mode-feynman-panel').classList.add('hidden');
+      document.getElementById('mode-cloze-panel').classList.add('hidden');
+      document.getElementById('mode-standard-panel').classList.add('hidden');
+      document.getElementById(`mode-${mode}-panel`).classList.remove('hidden');
+
+      document.getElementById('model-answer').classList.add('hidden');
+      renderCard();
+    }
+
+    function applyBookTheme(bookTitle) {
+      if (bookTitle === 'ALL') {
+        document.documentElement.style.setProperty('--accent-color', '#f59e0b');
+        document.documentElement.style.setProperty('--accent-glow', 'rgba(245, 158, 11, 0.25)');
+      } else {
+        const palette = getBookPalette(bookTitle);
+        document.documentElement.style.setProperty('--accent-color', palette.accent);
+        document.documentElement.style.setProperty('--accent-glow', `${palette.border}40`);
+      }
+    }
+
+    function deleteDeck(bookTitle) {
+      if (confirm(`Are you sure you want to permanently delete all flashcards for "${bookTitle}"?`)) {
+        cards = cards.filter(c => c.book !== bookTitle);
+        saveData();
+        if (currentBookFilter === bookTitle) {
+          filterByBook('ALL');
+        } else {
+          updateBookshelf();
+          populateBookSelect();
+          applyFilter();
+        }
+      }
+    }
+
+    function updateBookshelf() {
+      const shelf = document.getElementById('bookshelf');
+      shelf.innerHTML = '';
+
+      if (cards.length === 0) {
+        shelf.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding: 10px;">Bookshelf is empty. Paste JSON data to add books.</div>';
+        return;
+      }
+
+      // All Books Tile
+      const allTile = document.createElement('div');
+      allTile.className = `book-tile ${currentBookFilter === 'ALL' ? 'active' : ''}`;
+      allTile.onclick = () => filterByBook('ALL');
+      allTile.innerHTML = `<div class="book-fallback" style="color:var(--text-main);">ALL BOOKS</div>`;
+      shelf.appendChild(allTile);
+
+      const bookMap = {};
+      cards.forEach(c => {
+        if (!bookMap[c.book]) bookMap[c.book] = c.coverImage;
+      });
+
+      Object.keys(bookMap).forEach(bookTitle => {
+        const coverUrl = bookMap[bookTitle];
+        const palette = getBookPalette(bookTitle);
+        
+        const tile = document.createElement('div');
+        tile.className = `book-tile ${currentBookFilter === bookTitle ? 'active' : ''}`;
+        tile.style.backgroundColor = palette.bg;
+        tile.style.borderColor = palette.border;
+        tile.onclick = () => filterByBook(bookTitle);
+
+        // Delete Button
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-deck-btn';
+        delBtn.innerHTML = '×';
+        delBtn.title = `Delete ${bookTitle}`;
+        delBtn.onclick = (e) => {
+          e.stopPropagation();
+          deleteDeck(bookTitle);
+        };
+        tile.appendChild(delBtn);
+
+        const contentDiv = document.createElement('div');
+        contentDiv.style.width = '100%';
+        contentDiv.style.height = '100%';
+        contentDiv.style.display = 'flex';
+        contentDiv.style.alignItems = 'center';
+        contentDiv.style.justifyContent = 'center';
+
+        if (coverUrl) {
+          contentDiv.innerHTML = `<img src="${coverUrl}" alt="${bookTitle}" onerror="this.outerHTML='<div class=\\'book-fallback\\' style=\\'color:${palette.text};\\'>${bookTitle}</div>'">`;
+        } else {
+          contentDiv.innerHTML = `<div class="book-fallback" style="color:${palette.text};">${bookTitle}</div>`;
+        }
+        tile.appendChild(contentDiv);
+        shelf.appendChild(tile);
+      });
+    }
+
+    function populateBookSelect() {
+      const select = document.getElementById('book-select');
+      select.innerHTML = '<option value="ALL">All Books Combined (Encompassing Study)</option>';
+      const books = [...new Set(cards.map(c => c.book))];
+      books.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = b;
+        select.appendChild(opt);
+      });
+      select.value = currentBookFilter;
+    }
+
+    function filterByBook(bookTitle) {
+      currentBookFilter = bookTitle;
+      document.getElementById('book-select').value = bookTitle;
+      applyBookTheme(bookTitle);
+      updateBookshelf();
+      applyFilter();
+    }
+
+    function applyFilter() {
+      if (currentBookFilter === 'ALL') {
+        filteredCards = [...cards];
+      } else {
+        filteredCards = cards.filter(c => c.book === currentBookFilter);
+      }
+      currentIndex = 0;
+      updateBoxCounts();
+      renderCard();
+    }
+
+    function renderCard() {
+      const total = filteredCards.length;
+      const currentNum = total > 0 ? currentIndex + 1 : 0;
+      document.getElementById('card-counter').textContent = `Q${currentNum}/${total}`;
+
+      if (total === 0) {
+        document.getElementById('card-prompt').textContent = "No cards available. Please import a deck or add cards.";
+        document.getElementById('card-book-title').textContent = "NO CARDS LOADED";
+        document.getElementById('card-box-label').textContent = "-";
+        document.getElementById('model-answer').classList.add('hidden');
+        return;
+      }
+
+      const card = filteredCards[currentIndex];
+      document.getElementById('card-book-title').textContent = (card.book || 'UNKNOWN').toUpperCase();
+      document.getElementById('card-box-label').textContent = `LEITNER BOX ${card.box || 1}`;
+      document.getElementById('feynman-input').value = '';
+      document.getElementById('model-answer').classList.add('hidden');
+
+      if (currentMode === 'cloze' && card.clozeTarget) {
+        const clozePrompt = card.answer.replace(
+          new RegExp(card.clozeTarget, 'gi'),
+          `<span class="cloze-target">[ ${card.clozeTarget.length} letters ]</span>`
+        );
+        document.getElementById('card-prompt').innerHTML = `<strong>Context Question:</strong> ${card.prompt}<br><br><strong>Cloze Challenge:</strong> ${clozePrompt}`;
+      } else {
+        document.getElementById('card-prompt').textContent = card.prompt;
+      }
+
+      applyBookTheme(card.book || 'ALL');
+    }
+
+    function toggleAnswer() {
+      const card = filteredCards[currentIndex];
+      if (!card) return;
+
+      const ansBox = document.getElementById('model-answer');
+      if (currentMode === 'cloze' && card.clozeTarget) {
+        ansBox.innerHTML = `<strong>Cloze Target:</strong> <span style="color:var(--accent-color); font-weight:bold;">${card.clozeTarget}</span><br><br><strong>Full Answer:</strong> ${card.answer}`;
+      } else {
+        ansBox.innerHTML = `<strong>Model Answer:</strong> ${card.answer}`;
+      }
+      ansBox.classList.toggle('hidden');
+    }
+
+    // 4-Button Anki Logic
+    function rateCard(rating) {
+      if (filteredCards.length === 0) return;
+      const card = filteredCards[currentIndex];
+      if (!card.box) card.box = 1;
+
+      if (rating === 'again') {
+        card.box = 1;
+      } else if (rating === 'hard') {
+        // Keep box
+      } else if (rating === 'good') {
+        card.box = Math.min(5, card.box + 1);
+      } else if (rating === 'easy') {
+        card.box = Math.min(5, card.box + 2);
+      }
+
+      saveData();
+      updateBoxCounts();
+      currentIndex = (currentIndex + 1) % filteredCards.length;
+      renderCard();
+    }
+
+    function updateBoxCounts() {
+      const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, M: 0 };
+      cards.forEach(c => {
+        const b = c.box || 1;
+        if (b >= 5) counts['M'] = (counts['M'] || 0) + 1;
+        else counts[b] = (counts[b] || 0) + 1;
+      });
+      document.getElementById('b1-count').textContent = counts[1];
+      document.getElementById('b2-count').textContent = counts[2];
+      document.getElementById('b3-count').textContent = counts[3];
+      document.getElementById('b4-count').textContent = counts[4];
+      document.getElementById('b5-count').textContent = counts[5];
+      document.getElementById('bm-count').textContent = counts['M'];
+    }
+
+    // Card Manager Modal Functions
+    function openCardManager() {
+      renderCardManagerList();
+      document.getElementById('card-manager-modal').classList.remove('hidden');
+    }
+
+    function closeCardManager() {
+      document.getElementById('card-manager-modal').classList.add('hidden');
+      updateBookshelf();
+      populateBookSelect();
+      applyFilter();
+    }
+
+    function renderCardManagerList() {
+      const listContainer = document.getElementById('card-manager-list');
+      listContainer.innerHTML = '';
+
+      if (cards.length === 0) {
+        listContainer.innerHTML = '<div style="padding: 15px; text-align: center; color: var(--text-muted);">No cards found in storage.</div>';
+        return;
+      }
+
+      cards.forEach((card, idx) => {
+        const item = document.createElement('div');
+        item.className = 'card-list-item';
+        item.innerHTML = `
+          <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <strong style="color: var(--accent-color);">[${card.book}]</strong> ${card.prompt}
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button onclick="openEditCardModal(${idx})" style="padding: 4px 8px; font-size: 0.75rem;">Edit</button>
+            <button onclick="deleteCard(${idx})" style="padding: 4px 8px; font-size: 0.75rem; background: #dc2626; border: none; color: white;">Del</button>
+          </div>
+        `;
+        listContainer.appendChild(item);
+      });
+    }
+
+    function deleteCard(index) {
+      if (confirm("Are you sure you want to delete this card?")) {
+        cards.splice(index, 1);
+        saveData();
+        renderCardManagerList();
+      }
+    }
+
+    function openAddCardModal() {
+      document.getElementById('edit-modal-title').textContent = "Add New Card";
+      document.getElementById('edit-card-index').value = "";
+      document.getElementById('edit-card-book').value = currentBookFilter === 'ALL' ? 'General' : currentBookFilter;
+      document.getElementById('edit-card-prompt').value = "";
+      document.getElementById('edit-card-answer').value = "";
+      document.getElementById('edit-card-cloze').value = "";
+      document.getElementById('card-manager-modal').classList.add('hidden');
+      document.getElementById('edit-card-modal').classList.remove('hidden');
+    }
+
+    function openEditCardModal(index) {
+      const card = cards[index];
+      document.getElementById('edit-modal-title').textContent = "Edit Card";
+      document.getElementById('edit-card-index').value = index;
+      document.getElementById('edit-card-book').value = card.book || "";
+      document.getElementById('edit-card-prompt').value = card.prompt || "";
+      document.getElementById('edit-card-answer').value = card.answer || "";
+      document.getElementById('edit-card-cloze').value = card.clozeTarget || "";
+      document.getElementById('card-manager-modal').classList.add('hidden');
+      document.getElementById('edit-card-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-card-modal').classList.add('hidden');
+      openCardManager();
+    }
+
+    function saveCardEdit() {
+      const indexVal = document.getElementById('edit-card-index').value;
+      const book = document.getElementById('edit-card-book').value.trim() || "General";
+      const prompt = document.getElementById('edit-card-prompt').value.trim();
+      const answer = document.getElementById('edit-card-answer').value.trim();
+      const clozeTarget = document.getElementById('edit-card-cloze').value.trim();
+
+      if (!prompt || !answer) {
+        alert("Prompt and Answer cannot be empty.");
+        return;
+      }
+
+      if (indexVal === "") {
+        // Add new card
+        cards.push({ book, prompt, answer, clozeTarget, box: 1 });
+      } else {
+        // Update existing card
+        const idx = parseInt(indexVal, 10);
+        cards[idx].book = book;
+        cards[idx].prompt = prompt;
+        cards[idx].answer = answer;
+        cards[idx].clozeTarget = clozeTarget;
+      }
+
+      saveData();
+      document.getElementById('edit-card-modal').classList.add('hidden');
+      openCardManager();
+    }
+
+    // Modal Import Logic
+    function triggerImport() { 
+      document.getElementById('import-textarea').value = '';
+      document.getElementById('import-modal').classList.remove('hidden'); 
+    }
+
+    function closeImportModal() {
+      document.getElementById('import-modal').classList.add('hidden');
+    }
+
+    function processImport() {
+      const text = document.getElementById('import-textarea').value;
+      if (!text.trim()) return;
+
+      try {
+        const imported = JSON.parse(text);
+        const newCards = Array.isArray(imported) ? imported : [imported];
+        cards = [...cards, ...newCards];
+        saveData();
+        updateBookshelf();
+        populateBookSelect();
+        applyFilter();
+        closeImportModal();
+      } catch (err) {
+        alert("Invalid JSON format. Please ensure you pasted valid, raw JSON code.");
+      }
+    }
+
+    function saveData() { localStorage.setItem('gemini_flashcards_v3', JSON.stringify(cards)); }
+
+    function exportData() {
+      if (cards.length === 0) {
+        alert("No data to export.");
+        return;
+      }
+      const blob = new Blob([JSON.stringify(cards, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "flashcards_backup.json";
+      a.click();
+    }
+
+    function resetApp() {
+      if (confirm("WARNING: This will delete ALL flashcards from all books in your browser storage. Proceed?")) {
+        localStorage.removeItem('gemini_flashcards_v3');
+        cards = [];
+        saveData();
+        updateBookshelf();
+        populateBookSelect();
+        applyFilter();
+      }
+    }
+  </script>
+</body>
+</html>
