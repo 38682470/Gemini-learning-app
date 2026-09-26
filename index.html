@@ -43,6 +43,20 @@
       font-size: 0.85rem;
     }
 
+    /* Neuroscience Metric Badge */
+    .metric-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: all 0.3s ease;
+    }
+
     /* Bookshelf Gallery */
     .bookshelf-wrapper {
       background: var(--bg-card);
@@ -59,6 +73,9 @@
       color: var(--text-muted);
       margin-bottom: 12px;
       font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .bookshelf-grid {
@@ -90,6 +107,11 @@
 
     .book-tile.active {
       box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    .book-tile.interleaved-selected {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
     }
 
     .book-tile img {
@@ -161,6 +183,13 @@
       flex-wrap: wrap;
     }
 
+    .controls-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
     select, button {
       background: var(--bg-card);
       color: var(--text-main);
@@ -173,6 +202,21 @@
     }
 
     button.btn-action { background: var(--accent-color); color: #000; border: none; }
+    button.btn-toggle-active { background: #3b82f6; color: #fff; border-color: #2563eb; }
+
+    .toggle-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      background: var(--bg-card);
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
 
     /* Technique Tabs */
     .technique-tabs {
@@ -225,16 +269,34 @@
       font-weight: bold;
       letter-spacing: 0.5px;
       margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .card-prompt {
       font-size: 1.15rem;
       font-weight: 600;
       line-height: 1.5;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
-    textarea, input[type="text"] {
+    /* Prompt Diagram & Image Styling */
+    .prompt-image-container {
+      margin: 12px 0 20px 0;
+      text-align: center;
+    }
+
+    .prompt-image {
+      max-width: 100%;
+      max-height: 280px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      object-fit: contain;
+      background: var(--bg-inner);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    textarea, input[type="text"], input[type="url"] {
       width: 100%;
       background: var(--bg-inner);
       border: 1px solid var(--border-color);
@@ -320,6 +382,27 @@
       gap: 10px;
     }
 
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 15px 0;
+      max-height: 200px;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-inner);
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
     .hidden { display: none !important; }
   </style>
 </head>
@@ -327,12 +410,17 @@
 
   <header>
     <h1 id="app-title">Ebbinghaus Literature Studio App</h1>
-    <p>Multi-Book Reader • 4-Button Anki Engine & Multi-Technique Tabs</p>
+    <p>Multi-Book Reader • SM-2 Date Engine & Neuroscience Interleaving</p>
+    <!-- Feature 3: 85% Optimal Retention Rate Metric -->
+    <div id="retention-metric" class="metric-badge">Session Retention: N/A (Target: ~85%)</div>
   </header>
 
   <!-- Bookshelf -->
   <div class="bookshelf-wrapper">
-    <div class="bookshelf-title">Bookshelf Collection</div>
+    <div class="bookshelf-title">
+      <span>Bookshelf Collection</span>
+      <button onclick="openInterleaveModal()" style="padding: 4px 8px; font-size: 0.75rem; background: var(--bg-inner);">Custom Multi-Book Selection</button>
+    </div>
     <div class="bookshelf-grid" id="bookshelf"></div>
   </div>
 
@@ -348,10 +436,24 @@
 
   <!-- Controls Bar -->
   <div class="controls-bar">
-    <select id="book-select" onchange="filterByBook(this.value)">
-      <option value="ALL">All Books Combined (Encompassing Study)</option>
-    </select>
-    <div>
+    <div class="controls-group">
+      <select id="book-select" onchange="filterByBook(this.value)">
+        <option value="ALL">All Books Combined (Global Interleaved)</option>
+      </select>
+
+      <!-- Feature 1: Date-Driven Queue Toggle -->
+      <button id="btn-due-toggle" onclick="toggleDueFilter()" title="Filter cards where nextDueDate <= Now">
+        📅 Due Cards Only
+      </button>
+
+      <!-- Feature 4: Desirable Difficulty Guard (3s Reveal Delay Toggle) -->
+      <label class="toggle-label" title="Enforces active memory retrieval by pausing before showing answers">
+        <input type="checkbox" id="guard-toggle" onchange="toggleGuard(this.checked)">
+        <span>⏱️ 3s Delay Guard</span>
+      </label>
+    </div>
+
+    <div class="controls-group">
       <button class="btn-action" onclick="triggerImport()">+ Bulk Import</button>
       <button onclick="openCardManager()">Manage Cards</button>
       <button onclick="exportData()">Export</button>
@@ -371,27 +473,33 @@
     <div>
       <div class="card-meta">
         <span id="card-book-title">NO CARDS LOADED</span>
+        <span id="card-due-status" style="color: var(--accent-color);">Due: Now</span>
         <span id="card-counter">Q0/0</span>
         <span id="card-box-label">-</span>
       </div>
 
       <div class="card-prompt" id="card-prompt">Please import JSON data to begin.</div>
 
+      <!-- Feature 5: Prompt Diagram & Image Container -->
+      <div id="prompt-image-box" class="prompt-image-container hidden">
+        <img id="prompt-img" class="prompt-image" src="" alt="Question Diagram or Visual Prompt">
+      </div>
+
       <!-- Mode 1: Feynman -->
       <div id="mode-feynman-panel">
         <textarea id="feynman-input" placeholder="Explain this concept in simple terms as if teaching someone else..."></textarea>
-        <button onclick="toggleAnswer()" style="width:100%;">Compare with Model Answer</button>
+        <button class="reveal-btn" onclick="toggleAnswer()" style="width:100%;">Compare with Model Answer</button>
       </div>
 
       <!-- Mode 2: Cloze -->
       <div id="mode-cloze-panel" class="hidden">
         <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:10px;">Recall the missing target phrase, then reveal:</p>
-        <button onclick="toggleAnswer()" style="width:100%;">Reveal Blank Target</button>
+        <button class="reveal-btn" onclick="toggleAnswer()" style="width:100%;">Reveal Blank Target</button>
       </div>
 
       <!-- Mode 3: Standard -->
       <div id="mode-standard-panel" class="hidden">
-        <button onclick="toggleAnswer()" style="width:100%;">Show Model Answer</button>
+        <button class="reveal-btn" onclick="toggleAnswer()" style="width:100%;">Show Model Answer</button>
       </div>
 
       <!-- Model Answer -->
@@ -406,6 +514,19 @@
         <button class="btn-hard" onclick="rateCard('hard')">Hard<br><small>(Stay in Box)</small></button>
         <button class="btn-good" onclick="rateCard('good')">Good<br><small>(+1 Box)</small></button>
         <button class="btn-easy" onclick="rateCard('easy')">Easy<br><small>(+2 Boxes)</small></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature 2: Custom Multi-Book Selection Modal -->
+  <div id="interleave-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3 style="margin-bottom: 10px; color: var(--accent-color);">Multi-Book Interleaving</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">Select multiple books to weave together into a single randomized review session:</p>
+      <div id="interleave-checkboxes" class="checkbox-group"></div>
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button onclick="closeInterleaveModal()" style="background: transparent; border: 1px solid var(--border-color);">Cancel</button>
+        <button class="btn-action" onclick="applyInterleavedSelection()">Start Interleaved Session</button>
       </div>
     </div>
   </div>
@@ -436,27 +557,43 @@
     </div>
   </div>
 
-  <!-- Single Card Editor Modal -->
+  <!-- Single Card Editor Modal (Enhanced with Diagram/Picture Support) -->
   <div id="edit-card-modal" class="modal-overlay hidden">
     <div class="modal-content">
       <h3 style="margin-bottom: 10px; color: var(--accent-color);" id="edit-modal-title">Edit Card</h3>
       <input type="hidden" id="edit-card-index">
+      
       <div style="margin-bottom: 10px;">
         <label style="font-size: 0.8rem; color: var(--text-muted);">Book Title</label>
         <input type="text" id="edit-card-book" placeholder="e.g. Les Misérables">
       </div>
+
       <div style="margin-bottom: 10px;">
         <label style="font-size: 0.8rem; color: var(--text-muted);">Question / Prompt</label>
         <textarea id="edit-card-prompt" style="height: 70px;"></textarea>
       </div>
+
+      <!-- Feature 5 Enhancement: Diagram & Image Input -->
+      <div style="margin-bottom: 10px; padding: 10px; border: 1px dashed var(--border-color); border-radius: 6px; background: var(--bg-inner);">
+        <label style="font-size: 0.8rem; color: var(--accent-color); font-weight: bold;">Question Diagram / Image (Optional)</label>
+        <input type="url" id="edit-card-image" placeholder="Paste Image URL (https://...)" style="margin-top: 6px; margin-bottom: 6px;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; text-align: center;">OR UPLOAD LOCAL IMAGE</div>
+        <input type="file" id="edit-card-file" accept="image/*" onchange="handleImageUpload(event)" style="font-size: 0.8rem; color: var(--text-muted);">
+        <div id="edit-image-preview" class="prompt-image-container hidden" style="margin-top: 8px;">
+          <img id="edit-preview-img" src="" style="max-height: 120px; border-radius: 4px; border: 1px solid var(--border-color);">
+        </div>
+      </div>
+
       <div style="margin-bottom: 10px;">
         <label style="font-size: 0.8rem; color: var(--text-muted);">Answer / Model Answer</label>
         <textarea id="edit-card-answer" style="height: 70px;"></textarea>
       </div>
+
       <div style="margin-bottom: 15px;">
         <label style="font-size: 0.8rem; color: var(--text-muted);">Cloze Target (Optional)</label>
         <input type="text" id="edit-card-cloze" placeholder="Target keyword for cloze mode">
       </div>
+
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
         <button onclick="closeEditModal()" style="background: transparent; border: 1px solid var(--border-color);">Cancel</button>
         <button class="btn-action" onclick="saveCardEdit()">Save Card</button>
@@ -486,14 +623,28 @@
 
     let cards = [];
     let filteredCards = [];
+    let selectedBooks = []; // For Custom Multi-Book Interleaving
     let currentIndex = 0;
     let currentMode = 'feynman';
     let currentBookFilter = 'ALL';
+    
+    // Neuroscience Engine States
+    let dueOnlyFilter = false;
+    let delayGuardActive = false;
+    let countdownTimer = null;
+    let sessionStats = { total: 0, success: 0 };
 
     window.onload = function() {
       const saved = localStorage.getItem('gemini_flashcards_v3');
       if (saved && JSON.parse(saved).length > 0) {
         cards = JSON.parse(saved);
+        // Ensure default SM-2 fields exist
+        cards.forEach(c => {
+          if (!c.box) c.box = 1;
+          if (!c.interval) c.interval = 1;
+          if (!c.easeFactor) c.easeFactor = 2.5;
+          if (!c.nextDueDate) c.nextDueDate = new Date().toISOString();
+        });
       } else {
         cards = [];
       }
@@ -517,7 +668,7 @@
     }
 
     function applyBookTheme(bookTitle) {
-      if (bookTitle === 'ALL') {
+      if (bookTitle === 'ALL' || bookTitle === 'MULTI') {
         document.documentElement.style.setProperty('--accent-color', '#f59e0b');
         document.documentElement.style.setProperty('--accent-glow', 'rgba(245, 158, 11, 0.25)');
       } else {
@@ -565,9 +716,10 @@
       Object.keys(bookMap).forEach(bookTitle => {
         const coverUrl = bookMap[bookTitle];
         const palette = getBookPalette(bookTitle);
+        const isInterleavedSelected = currentBookFilter === 'MULTI' && selectedBooks.includes(bookTitle);
         
         const tile = document.createElement('div');
-        tile.className = `book-tile ${currentBookFilter === bookTitle ? 'active' : ''}`;
+        tile.className = `book-tile ${currentBookFilter === bookTitle ? 'active' : ''} ${isInterleavedSelected ? 'interleaved-selected' : ''}`;
         tile.style.backgroundColor = palette.bg;
         tile.style.borderColor = palette.border;
         tile.onclick = () => filterByBook(bookTitle);
@@ -602,7 +754,13 @@
 
     function populateBookSelect() {
       const select = document.getElementById('book-select');
-      select.innerHTML = '<option value="ALL">All Books Combined (Encompassing Study)</option>';
+      select.innerHTML = '<option value="ALL">All Books Combined (Global Interleaved)</option>';
+      if (selectedBooks.length > 0) {
+        const optMulti = document.createElement('option');
+        optMulti.value = "MULTI";
+        optMulti.textContent = `Custom Interleaved (${selectedBooks.length} Books)`;
+        select.appendChild(optMulti);
+      }
       const books = [...new Set(cards.map(c => c.book))];
       books.forEach(b => {
         const opt = document.createElement('option');
@@ -621,15 +779,57 @@
       applyFilter();
     }
 
+    // Feature 1 & 2: Filter Logic (SM-2 Due Date & Interleaved Shuffling)
     function applyFilter() {
+      let baseList = [];
       if (currentBookFilter === 'ALL') {
-        filteredCards = [...cards];
+        baseList = interleaveArray([...cards]);
+      } else if (currentBookFilter === 'MULTI') {
+        baseList = interleaveArray(cards.filter(c => selectedBooks.includes(c.book)));
       } else {
-        filteredCards = cards.filter(c => c.book === currentBookFilter);
+        baseList = cards.filter(c => c.book === currentBookFilter);
       }
+
+      const now = new Date();
+      if (dueOnlyFilter) {
+        filteredCards = baseList.filter(c => {
+          if (!c.nextDueDate) return true;
+          return new Date(c.nextDueDate) <= now;
+        });
+      } else {
+        filteredCards = baseList;
+      }
+
       currentIndex = 0;
       updateBoxCounts();
       renderCard();
+    }
+
+    // Neuroscience Interleaving Shuffler
+    function interleaveArray(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function toggleDueFilter() {
+      dueOnlyFilter = !dueOnlyFilter;
+      const btn = document.getElementById('btn-due-toggle');
+      if (dueOnlyFilter) {
+        btn.classList.add('btn-toggle-active');
+        btn.textContent = "📅 Due Cards Only (Active)";
+      } else {
+        btn.classList.remove('btn-toggle-active');
+        btn.textContent = "📅 Due Cards Only";
+      }
+      applyFilter();
+    }
+
+    function toggleGuard(checked) {
+      delayGuardActive = checked;
     }
 
     function renderCard() {
@@ -638,9 +838,11 @@
       document.getElementById('card-counter').textContent = `Q${currentNum}/${total}`;
 
       if (total === 0) {
-        document.getElementById('card-prompt').textContent = "No cards available. Please import a deck or add cards.";
+        document.getElementById('card-prompt').textContent = dueOnlyFilter ? "No cards currently due for review!" : "No cards available. Please import a deck or add cards.";
         document.getElementById('card-book-title').textContent = "NO CARDS LOADED";
         document.getElementById('card-box-label').textContent = "-";
+        document.getElementById('card-due-status').textContent = "-";
+        document.getElementById('prompt-image-box').classList.add('hidden');
         document.getElementById('model-answer').classList.add('hidden');
         return;
       }
@@ -648,9 +850,36 @@
       const card = filteredCards[currentIndex];
       document.getElementById('card-book-title').textContent = (card.book || 'UNKNOWN').toUpperCase();
       document.getElementById('card-box-label').textContent = `LEITNER BOX ${card.box || 1}`;
+      
+      // Render SM-2 Due Status
+      const now = new Date();
+      const dueDate = card.nextDueDate ? new Date(card.nextDueDate) : now;
+      if (dueDate <= now) {
+        document.getElementById('card-due-status').textContent = "Status: Due Now";
+        document.getElementById('card-due-status').style.color = "#16a34a";
+      } else {
+        const formattedDate = dueDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        document.getElementById('card-due-status').textContent = `Due: ${formattedDate}`;
+        document.getElementById('card-due-status').style.color = "var(--text-muted)";
+      }
+
       document.getElementById('feynman-input').value = '';
       document.getElementById('model-answer').classList.add('hidden');
 
+      // Feature 5: Diagram & Image Support Renderer
+      const promptImgBox = document.getElementById('prompt-image-box');
+      const promptImg = document.getElementById('prompt-img');
+      const imageSrc = card.promptImage || card.image || card.diagram;
+      
+      if (imageSrc) {
+        promptImg.src = imageSrc;
+        promptImgBox.classList.remove('hidden');
+      } else {
+        promptImgBox.classList.add('hidden');
+        promptImg.src = '';
+      }
+
+      // Prompt & Cloze Support
       if (currentMode === 'cloze' && card.clozeTarget) {
         const clozePrompt = card.answer.replace(
           new RegExp(card.clozeTarget, 'gi'),
@@ -664,11 +893,43 @@
       applyBookTheme(card.book || 'ALL');
     }
 
+    // Feature 4: Desirable Difficulty Delay Guard Execution
     function toggleAnswer() {
       const card = filteredCards[currentIndex];
       if (!card) return;
 
       const ansBox = document.getElementById('model-answer');
+      
+      if (delayGuardActive && ansBox.classList.contains('hidden')) {
+        let count = 3;
+        const revealBtns = document.querySelectorAll('.reveal-btn');
+        
+        revealBtns.forEach(btn => {
+          btn.disabled = true;
+          btn.dataset.origText = btn.dataset.origText || btn.textContent;
+          btn.textContent = `⏱️ Active Retrieval Guard: Wait ${count}s...`;
+        });
+
+        clearInterval(countdownTimer);
+        countdownTimer = setInterval(() => {
+          count--;
+          if (count > 0) {
+            revealBtns.forEach(btn => btn.textContent = `⏱️ Active Retrieval Guard: Wait ${count}s...`);
+          } else {
+            clearInterval(countdownTimer);
+            revealBtns.forEach(btn => {
+              btn.disabled = false;
+              btn.textContent = btn.dataset.origText;
+            });
+            executeAnswerDisplay(card, ansBox);
+          }
+        }, 1000);
+      } else {
+        executeAnswerDisplay(card, ansBox);
+      }
+    }
+
+    function executeAnswerDisplay(card, ansBox) {
       if (currentMode === 'cloze' && card.clozeTarget) {
         ansBox.innerHTML = `<strong>Cloze Target:</strong> <span style="color:var(--accent-color); font-weight:bold;">${card.clozeTarget}</span><br><br><strong>Full Answer:</strong> ${card.answer}`;
       } else {
@@ -677,26 +938,67 @@
       ansBox.classList.toggle('hidden');
     }
 
-    // 4-Button Anki Logic
+    // Feature 1 & 3: SM-2 Engine & 85% Metric Calculation
     function rateCard(rating) {
       if (filteredCards.length === 0) return;
       const card = filteredCards[currentIndex];
+
       if (!card.box) card.box = 1;
+      if (!card.interval) card.interval = 1;
+      if (!card.easeFactor) card.easeFactor = 2.5;
+
+      const now = new Date();
 
       if (rating === 'again') {
         card.box = 1;
+        card.interval = 1;
+        card.easeFactor = Math.max(1.3, card.easeFactor - 0.2);
+        sessionStats.total++;
       } else if (rating === 'hard') {
-        // Keep box
+        card.interval = Math.max(1, Math.round(card.interval * 1.2));
+        card.easeFactor = Math.max(1.3, card.easeFactor - 0.15);
+        sessionStats.total++;
       } else if (rating === 'good') {
         card.box = Math.min(5, card.box + 1);
+        card.interval = card.box === 1 ? 1 : Math.round(card.interval * card.easeFactor);
+        sessionStats.total++;
+        sessionStats.success++;
       } else if (rating === 'easy') {
         card.box = Math.min(5, card.box + 2);
+        card.interval = card.box === 1 ? 3 : Math.round(card.interval * card.easeFactor * 1.3);
+        card.easeFactor += 0.15;
+        sessionStats.total++;
+        sessionStats.success++;
       }
+
+      // Calculate next due timestamp
+      const nextDue = new Date(now.getTime() + card.interval * 24 * 60 * 60 * 1000);
+      card.nextDueDate = nextDue.toISOString();
 
       saveData();
       updateBoxCounts();
+      updateRetentionMetric();
+
       currentIndex = (currentIndex + 1) % filteredCards.length;
       renderCard();
+    }
+
+    function updateRetentionMetric() {
+      const metricBadge = document.getElementById('retention-metric');
+      if (sessionStats.total === 0) {
+        metricBadge.textContent = "Session Retention: N/A (Target: ~85%)";
+        metricBadge.style.color = "var(--text-muted)";
+        return;
+      }
+      const pct = Math.round((sessionStats.success / sessionStats.total) * 100);
+      metricBadge.textContent = `Session Retention: ${pct}% (Optimal Range: 80-90%)`;
+      if (pct >= 80 && pct <= 90) {
+        metricBadge.style.color = "#4ade80"; // Optimal Green
+      } else if (pct < 80) {
+        metricBadge.style.color = "#fb923c"; // Orange (Too difficult or forgotten)
+      } else {
+        metricBadge.style.color = "#60a5fa"; // Blue (Over-learned/Too easy)
+      }
     }
 
     function updateBoxCounts() {
@@ -714,7 +1016,63 @@
       document.getElementById('bm-count').textContent = counts['M'];
     }
 
-    // Card Manager Modal Functions
+    // Feature 2: Multi-Book Interleaving Modal Functions
+    function openInterleaveModal() {
+      const container = document.getElementById('interleave-checkboxes');
+      container.innerHTML = '';
+      const books = [...new Set(cards.map(c => c.book))];
+
+      if (books.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-muted);">No books available.</div>';
+      } else {
+        books.forEach(b => {
+          const item = document.createElement('label');
+          item.className = 'checkbox-item';
+          const isChecked = selectedBooks.includes(b);
+          item.innerHTML = `<input type="checkbox" value="${b}" ${isChecked ? 'checked' : ''}> <span>${b}</span>`;
+          container.appendChild(item);
+        });
+      }
+
+      document.getElementById('interleave-modal').classList.remove('hidden');
+    }
+
+    function closeInterleaveModal() {
+      document.getElementById('interleave-modal').classList.add('hidden');
+    }
+
+    function applyInterleavedSelection() {
+      const checkedBoxes = document.querySelectorAll('#interleave-checkboxes input[type="checkbox"]:checked');
+      selectedBooks = Array.from(checkedBoxes).map(cb => cb.value);
+
+      if (selectedBooks.length === 0) {
+        alert("Please select at least one book for interleaving, or choose ALL from the main dropdown.");
+        return;
+      }
+
+      closeInterleaveModal();
+      currentBookFilter = 'MULTI';
+      populateBookSelect();
+      updateBookshelf();
+      applyFilter();
+    }
+
+    // Feature 5: Card Editor Image Reader Logic
+    function handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64Data = e.target.result;
+        document.getElementById('edit-card-image').value = base64Data;
+        document.getElementById('edit-preview-img').src = base64Data;
+        document.getElementById('edit-image-preview').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Card Manager & Editor Modals
     function openCardManager() {
       renderCardManagerList();
       document.getElementById('card-manager-modal').classList.remove('hidden');
@@ -739,9 +1097,10 @@
       cards.forEach((card, idx) => {
         const item = document.createElement('div');
         item.className = 'card-list-item';
+        const hasImg = (card.promptImage || card.image) ? ' 🖼️' : '';
         item.innerHTML = `
           <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            <strong style="color: var(--accent-color);">[${card.book}]</strong> ${card.prompt}
+            <strong style="color: var(--accent-color);">[${card.book}]</strong> ${card.prompt}${hasImg}
           </div>
           <div style="display: flex; gap: 6px;">
             <button onclick="openEditCardModal(${idx})" style="padding: 4px 8px; font-size: 0.75rem;">Edit</button>
@@ -763,8 +1122,12 @@
     function openAddCardModal() {
       document.getElementById('edit-modal-title').textContent = "Add New Card";
       document.getElementById('edit-card-index').value = "";
-      document.getElementById('edit-card-book').value = currentBookFilter === 'ALL' ? 'General' : currentBookFilter;
+      document.getElementById('edit-card-book').value = currentBookFilter === 'ALL' || currentBookFilter === 'MULTI' ? 'General' : currentBookFilter;
       document.getElementById('edit-card-prompt').value = "";
+      document.getElementById('edit-card-image').value = "";
+      document.getElementById('edit-card-file').value = "";
+      document.getElementById('edit-preview-img').src = "";
+      document.getElementById('edit-image-preview').classList.add('hidden');
       document.getElementById('edit-card-answer').value = "";
       document.getElementById('edit-card-cloze').value = "";
       document.getElementById('card-manager-modal').classList.add('hidden');
@@ -777,6 +1140,18 @@
       document.getElementById('edit-card-index').value = index;
       document.getElementById('edit-card-book').value = card.book || "";
       document.getElementById('edit-card-prompt').value = card.prompt || "";
+      
+      const imgUrl = card.promptImage || card.image || "";
+      document.getElementById('edit-card-image').value = imgUrl;
+      document.getElementById('edit-card-file').value = "";
+      if (imgUrl) {
+        document.getElementById('edit-preview-img').src = imgUrl;
+        document.getElementById('edit-image-preview').classList.remove('hidden');
+      } else {
+        document.getElementById('edit-preview-img').src = "";
+        document.getElementById('edit-image-preview').classList.add('hidden');
+      }
+
       document.getElementById('edit-card-answer').value = card.answer || "";
       document.getElementById('edit-card-cloze').value = card.clozeTarget || "";
       document.getElementById('card-manager-modal').classList.add('hidden');
@@ -792,6 +1167,7 @@
       const indexVal = document.getElementById('edit-card-index').value;
       const book = document.getElementById('edit-card-book').value.trim() || "General";
       const prompt = document.getElementById('edit-card-prompt').value.trim();
+      const promptImage = document.getElementById('edit-card-image').value.trim();
       const answer = document.getElementById('edit-card-answer').value.trim();
       const clozeTarget = document.getElementById('edit-card-cloze').value.trim();
 
@@ -802,12 +1178,16 @@
 
       if (indexVal === "") {
         // Add new card
-        cards.push({ book, prompt, answer, clozeTarget, box: 1 });
+        cards.push({ 
+          book, prompt, promptImage, answer, clozeTarget, 
+          box: 1, interval: 1, easeFactor: 2.5, nextDueDate: new Date().toISOString() 
+        });
       } else {
         // Update existing card
         const idx = parseInt(indexVal, 10);
         cards[idx].book = book;
         cards[idx].prompt = prompt;
+        cards[idx].promptImage = promptImage;
         cards[idx].answer = answer;
         cards[idx].clozeTarget = clozeTarget;
       }
@@ -834,6 +1214,15 @@
       try {
         const imported = JSON.parse(text);
         const newCards = Array.isArray(imported) ? imported : [imported];
+        
+        // Ensure default SM-2 fields
+        newCards.forEach(c => {
+          if (!c.box) c.box = 1;
+          if (!c.interval) c.interval = 1;
+          if (!c.easeFactor) c.easeFactor = 2.5;
+          if (!c.nextDueDate) c.nextDueDate = new Date().toISOString();
+        });
+
         cards = [...cards, ...newCards];
         saveData();
         updateBookshelf();
